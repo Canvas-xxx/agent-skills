@@ -23,17 +23,30 @@ and provide actionable remediation — not just a list of issues.
 
 ## Step 0: Load Project Context
 
-Check if `SECURITY_CONTEXT.md` exists at the project root. If it does, read it —
-it contains the tech stack, compliance requirements, threat model, and known
-vulnerabilities already remediated.
+### If `.context.md` exists
+1. READ `.context.md` — focus on Stack + Security sections
+2. If task needs threat model or compliance details → READ `.context/security.md`
+3. Proceed with task
 
-If it doesn't exist, ask:
-1. What is the tech stack? (frontend / backend / infra)
-2. What compliance standards apply? (PDPA / GDPR / SOC2 / ISO 27001 / PCI-DSS)
-3. What is the sensitivity of data handled? (PII / financial / health / public)
-4. Is this a new audit or a follow-up on previous findings?
+### If `.context.md` does NOT exist
+1. READ `references/context-template.md` to understand the required format
+2. Ask these questions (all at once):
+   - Tech stack? (frontend / backend / database / infra)
+   - Compliance requirements? (PDPA / GDPR / SOC2 / ISO 27001)
+   - Data sensitivity? (PII / financial / health / public)
+   - Is the system internet-facing?
+   - Auth method? (JWT / session / OAuth / API key)
+   - New audit or follow-up on previous findings?
+   - Any known issues already remediated?
+3. Generate `.context.md` and `.context/security.md` immediately
+   using the format defined in `references/context-template.md`
+4. Tell the user:
+   > "I've created `.context.md` and `.context/security.md` at your project root.
+   > Fill in known findings and audit history when you have them."
+5. Proceed with the original task
 
-Then offer to generate `SECURITY_CONTEXT.md` — see `references/project-context-template.md`.
+**If user refuses to answer or says "just do it":**
+Use reasonable defaults and note assumptions at the top of generated files.
 
 ---
 
@@ -134,3 +147,9 @@ Read the relevant file when the condition matches — do NOT load all at once.
 - `references/infrastructure.md` — Read when reviewing cloud config, secrets management, network rules, or deployment security
 - `references/compliance.md` — Read when task involves PDPA, GDPR, SOC2, ISO 27001, or PCI-DSS gap analysis
 - `references/report-template.md` — Read when writing a formal security audit report or pentest findings document
+
+**Project Context**
+- `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
+- `.context.md` — READ at start of every session — project overview and pointers
+- `.context/security.md` — Read when task needs threat model or compliance requirements
+- `.context/git.md` — Read when task involves branching strategy or release process

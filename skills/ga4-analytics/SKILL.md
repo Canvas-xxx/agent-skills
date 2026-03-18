@@ -22,19 +22,32 @@ business question. If it doesn't, don't track it.
 
 ## Step 0: Load Project Context
 
-**Before designing any events or writing any tracking code:**
+### If `.context.md` exists
+1. READ `.context.md` — focus on Analytics section
+2. If task needs event taxonomy or funnels → READ `.context/analytics.md`
+3. Proceed with task
 
-Check if `ANALYTICS_CONTEXT.md` exists at the project root. If it does, read it immediately —
-it contains the product's event taxonomy, business questions, user properties, and naming
-conventions. All examples and suggestions must align with that context.
+### If `.context.md` does NOT exist
+1. READ `references/context-template.md` to understand the required format
+2. Ask these questions (all at once):
+   - Product type? (SaaS / e-commerce / content / marketplace)
+   - GA4 implementation? (gtag.js / GTM / both)
+   - GA4 Measurement ID and GTM Container ID?
+   - What single action defines an "activated" user?
+   - What are the 2–3 most important questions analytics must answer?
+   - Who consumes the data? (PM / Dev / C-level / Marketing)
+   - What subscription plans exist? (e.g. free / pro / enterprise)
+3. Generate `.context.md` and `.context/analytics.md` immediately
+   using the format defined in `references/context-template.md`
+   — include a starter event taxonomy based on product type
+4. Tell the user:
+   > "I've created `.context.md` and `.context/analytics.md` at your project root.
+   > The event taxonomy is a starting point — review and adjust to match
+   > your actual product flows."
+5. Proceed with the original task
 
-If it doesn't exist, ask the user:
-1. What is the product type? (SaaS / e-commerce / content / marketplace)
-2. What are the 2–3 most important user actions that indicate success?
-3. Who will consume the analytics? (PM / Dev / C-level / Marketing)
-4. Is GA4 implemented via gtag.js, GTM, or both?
-
-Then offer to generate `ANALYTICS_CONTEXT.md` — see `references/project-context-template.md`.
+**If user refuses to answer or says "just do it":**
+Use reasonable defaults and note assumptions at the top of generated files.
 
 ---
 
@@ -150,3 +163,9 @@ Read the relevant file when the condition matches — do NOT load all at once.
 - `references/gtm-setup.md` — Read when task involves GTM container setup, dataLayer, triggers, or tag configuration
 - `references/funnel-analysis.md` — Read when analyzing drop-off, building funnel reports in GA4, or designing conversion tracking
 - `references/debugging.md` — Read when validating events, using GA4 DebugView, GTM Preview, or troubleshooting missing data
+
+**Project Context**
+- `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
+- `.context.md` — READ at start of every session — project overview and pointers
+- `.context/analytics.md` — Read when task needs event taxonomy or funnel definitions
+- `.context/git.md` — Read when task involves branching strategy or release process

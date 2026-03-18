@@ -1,0 +1,1 @@
+/Users/worachotesuwanyothin/agent-skills/skills/_shared/references/context-template.md

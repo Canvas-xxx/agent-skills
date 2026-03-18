@@ -43,10 +43,10 @@ INSTALL_TARGETS=(
 get_shared_refs() {
   local skill_name="$1"
   case "$skill_name" in
-    angular-engineer) echo "commit-convention.md" ;;
-    strapi-engineer)  echo "commit-convention.md" ;;
-    ga4-analytics)    echo "" ;;
-    security-audit)   echo "" ;;
+    angular-engineer) echo "context-template.md git-workflow.md" ;;
+    strapi-engineer)  echo "context-template.md git-workflow.md" ;;
+    ga4-analytics)    echo "context-template.md" ;;
+    security-audit)   echo "context-template.md" ;;
     *)                echo "" ;;
   esac
 }

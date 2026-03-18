@@ -16,38 +16,34 @@ You are a senior Angular engineer. You write clean, testable, maintainable code 
 
 ---
 
-## Step 0: Gather Context Before Writing Anything
+## Step 0: Load Project Context
 
-**Only apply this step when the task requires generating or modifying code.** Skip for conceptual questions, debugging advice, or code review without generation. The most common failure modes for AI-generated Angular code are:
-- Duplicating utilities, pipes, or components that already exist in `shared/`
-- Hardcoding colors and spacing instead of using the project's design tokens
-- Generating NgModule patterns on an Angular 17 project (or vice versa)
+**Only apply when task requires generating or modifying code.**
+Skip for conceptual questions, debugging, or code review without generation.
 
-**First: check for a project context file.** If `PROJECT_CONTEXT.md` exists at the project root,
-read it immediately — it contains all the project-specific context you need. Skip asking the questions
-below and proceed with the information in that file. If it doesn't exist, run steps 1–3 below,
-then offer to generate it (see "Project Context File" section).
+### If `.context.md` exists
+1. READ `.context.md` — focus on Stack + Angular + Git sections
+2. If task needs design tokens or shared components → READ `.context/angular.md`
+3. Proceed with task
 
-**1. Angular version** — Ask if not clear from imports or `package.json`. Version determines architecture:
-- ng14–15: NgModule-based (see `references/module-patterns.md`)
-- ng15–16: Standalone components available, preferred for new work
-- ng17+: Standalone default, new control flow (`@if`, `@for`), signals
+### If `.context.md` does NOT exist
+1. READ `references/context-template.md` to understand the required format
+2. Ask these questions (all at once — not one by one):
+   - Angular version?
+   - Main branch name? (main / master / trunk)
+   - Ticket prefix? (e.g. BNCP, JIRA)
+   - Design system? (Angular Material / Bootstrap / custom)
+   - Share `_variables.scss` if it exists
+   - Share relevant parts of `src/app/shared/` to avoid duplication
+3. Generate `.context.md` and `.context/angular.md` immediately
+   using the format defined in `references/context-template.md`
+4. Tell the user:
+   > "I've created `.context.md` and `.context/angular.md` at your project root.
+   > Review and fill in any blanks marked ___ when you have time."
+5. Proceed with the original task — do NOT wait for user to review files first
 
-**2. Design system** — Before writing any component with styles or SCSS, ask for (or look at):
-- `src/styles/_variables.scss` — the project's color palette, spacing scale, typography tokens
-- The Angular Material theme file (usually in `styles.scss` or a dedicated `theme.scss`)
-
-Never hardcode hex colors, arbitrary pixel values, or Bootstrap color names.
-Always use SCSS variables or CSS custom properties. If `_variables.scss` doesn't exist yet,
-help the user define one (see Design System section below).
-
-**3. Existing shared code** — Before generating a new pipe, directive, utility, component, or service method, check:
-- `src/app/shared/` — pipes, components, and directives already available
-- `src/app/core/services/` — singleton services already registered
-- The relevant feature folder — the method or component may already exist there
-
-If the user hasn't shared these files, ask:
-> "Can you share your `_variables.scss` and the relevant parts of `shared/` so I can check what already exists?"
+**If user refuses to answer or says "just do it":**
+Use reasonable defaults, note assumptions at the top of generated files:
 
 ---
 
@@ -332,7 +328,6 @@ Read the relevant file when the condition matches — do NOT load all references
 - `references/project-context-template.md` — Read only when generating PROJECT_CONTEXT.md for the first time
 - `references/routing-patterns.md` — Read when task involves lazy loading, route guards (see §3), resolvers, route params, child routes, or navigation
 - `references/state-management.md` — Read when task involves choosing between signals/BehaviorSubject/NgRx, or designing service-level state
-- `references/commit-convention.md` — Read when task involves writing commit messages, PR descriptions, branch naming, or changelog generation
  
 **RxJS & Performance**
 - `references/rxjs-patterns.md` — Read when task involves RxJS operators, stream composition, multicasting, or unsubscribe strategies
@@ -342,3 +337,9 @@ Read the relevant file when the condition matches — do NOT load all references
 **Testing**
 - `references/testing-advanced.md` — Read when task involves testing Material dialogs (§2), HTTP interceptors (§3), route guards (§4), or complex async scenarios (§5–6)
 - `references/code-review.md` — Read when task involves reviewing a PR or existing code
+
+**Project Context**
+- `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
+- `.context.md` — READ at start of every session — project overview and pointers
+- `.context/angular.md` — Read when task needs design tokens or shared component list
+- `.context/git.md` — Read when task involves branching strategy or release process

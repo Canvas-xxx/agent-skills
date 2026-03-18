@@ -1,1 +1,0 @@
-/Users/worachotesuwanyothin/agent-skills/skills/_shared/references/commit-convention.md

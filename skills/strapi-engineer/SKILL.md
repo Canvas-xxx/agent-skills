@@ -140,4 +140,8 @@ Read the relevant file when the condition matches — do NOT load all at once.
 - `references/strapi-schema.md` — Read when task involves relation types, plugins, extensions, or Document Service v5 API
 - `references/strapi-server.md` — Read when task involves middlewares, policies, lifecycle hooks, custom routes, cron jobs, or webhooks
 - `references/strapi-graphql.md` — Read when task involves GraphQL setup, custom queries/mutations, or resolver config
-- `references/commit-convention.md` — Read when task involves writing commit messages, PR descriptions, branch naming, or changelog generation
+
+**Project Context**
+- `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
+- `.context.md` — READ at start of every session — project overview and pointers
+- `.context/git.md` — Read when task involves branching strategy or release process
