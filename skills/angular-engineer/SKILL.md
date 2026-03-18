@@ -7,6 +7,10 @@ description: >
   SCSS, tests, or any TypeScript in an Angular project.
   Use even for vague requests like "help me with my Angular app", "fix this component",
   "how do I do X in Angular", or when the user pastes any Angular code.
+  Also handles git tasks within Angular projects: commit messages, branch naming,
+  git tags, releases, and changelog generation.
+  Trigger when user says "commit", "branch", "tag", "release", "changelog", "PR",
+  or "pull request" while working in an Angular project.
   Do NOT attempt Angular tasks from memory alone — always consult this skill first.
 ---
 
@@ -44,6 +48,11 @@ Skip for conceptual questions, debugging, or code review without generation.
 
 **If user refuses to answer or says "just do it":**
 Use reasonable defaults, note assumptions at the top of generated files:
+```
+# Assumptions made during generation — review and correct as needed
+# main_branch: main (assumed)
+# ticket_prefix: TICKET (assumed)
+```
 
 ---
 
@@ -64,6 +73,9 @@ Use reasonable defaults, note assumptions at the top of generated files:
 
 5. **Readability over cleverness**: Code is read far more than it's written. Optimize for the
    next developer on the team, not for line count.
+
+6. **Follow Git conventions** — Before writing any commit message, branch name, or PR description
+   → READ `references/git-workflow.md` first. Never invent conventions — always follow the project standard.
 
 ---
 
@@ -288,13 +300,6 @@ If task is reviewing a PR or existing code → READ `references/code-review.md` 
 
 ---
 
-## Project Context File
-
-`PROJECT_CONTEXT.md` lives at the project root. Read it at the start of every session if it exists.
-When generating it for the first time, read `references/project-context-template.md` for the format.
-
----
-
 ## Code Generation Output Format
 
 Structure every code response as:
@@ -314,9 +319,9 @@ Include the file path as a comment at the top of every code block:
 ---
 
 ## Reference Files
- 
+
 Read the relevant file when the condition matches — do NOT load all references at once.
- 
+
 **Architecture & Patterns**
 - `references/module-patterns.md` — Read when task involves NgModule, AppModule, CoreModule, SharedModule, or user is on ng14–15
 - `references/auth-patterns.md` — Read when task involves login, JWT, token refresh, APP_INITIALIZER; for guard patterns see routing-patterns.md
@@ -325,18 +330,20 @@ Read the relevant file when the condition matches — do NOT load all references
 - `references/forms-patterns.md` — Read when task involves reactive forms, FormGroup, FormArray, validators (see §7 for ControlValueAccessor), or form submission
 - `references/design-system.md` — Read when task involves SCSS, theming, _variables.scss, Material theme, or dark mode
 - `references/signals-patterns.md` — Read when task involves signal(), computed(), effect(), input()/output()/model(), toSignal(), or zone-less setup
-- `references/project-context-template.md` — Read only when generating PROJECT_CONTEXT.md for the first time
 - `references/routing-patterns.md` — Read when task involves lazy loading, route guards (see §3), resolvers, route params, child routes, or navigation
 - `references/state-management.md` — Read when task involves choosing between signals/BehaviorSubject/NgRx, or designing service-level state
- 
+
 **RxJS & Performance**
 - `references/rxjs-patterns.md` — Read when task involves RxJS operators, stream composition, multicasting, or unsubscribe strategies
 - `references/performance.md` — Read when task involves OnPush deep dive, virtual scrolling, bundle size, or lazy loading audit
 - `references/build-tools.md` — Read when task involves angular.json config, esbuild, CI/CD build, bundle analysis, or ng generate schematics
- 
+
 **Testing**
 - `references/testing-advanced.md` — Read when task involves testing Material dialogs (§2), HTTP interceptors (§3), route guards (§4), or complex async scenarios (§5–6)
 - `references/code-review.md` — Read when task involves reviewing a PR or existing code
+
+**Git & Workflow**
+- `references/git-workflow.md` — Read when task involves commit messages, branch naming, git tags, releases, changelog, or PR descriptions
 
 **Project Context**
 - `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time

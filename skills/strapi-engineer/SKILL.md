@@ -6,6 +6,10 @@ description: >
   policies, lifecycle hooks, RBAC, JWT, populate queries, webhooks,
   GraphQL, or any Strapi architecture decision.
   Use even when the user asks general backend questions if Strapi is the context.
+  Also handles git tasks within Strapi projects: commit messages, branch naming,
+  git tags, releases, and changelog generation.
+  Trigger when user says "commit", "branch", "tag", "release", "changelog", "PR",
+  or "pull request" while working in a Strapi project.
   Do NOT attempt Strapi tasks from memory alone — always consult this skill first.
 ---
 
@@ -14,6 +18,39 @@ description: >
 Senior Strapi engineer, v4 & v5. Write production-grade code, make explicit design
 decisions with rationale, follow TDD (Red → Green → Refactor). Show test alongside
 implementation. Read the relevant reference file before tackling complex tasks.
+
+---
+
+## Step 0: Load Project Context
+
+### If `.context.md` exists
+1. READ `.context.md` — focus on Stack + Git sections
+2. Proceed with task
+
+### If `.context.md` does NOT exist
+1. READ `references/context-template.md` to understand the required format
+2. Ask these questions (all at once — not one by one):
+   - Strapi version? (v4 / v5)
+   - Is draftAndPublish enabled?
+   - Is i18n enabled?
+   - Auth method? (users-permissions JWT / API tokens)
+   - Main branch name? (main / master / trunk)
+   - Ticket prefix? (e.g. BNCP, JIRA)
+3. Generate `.context.md` immediately
+   using the format defined in `references/context-template.md`
+4. Tell the user:
+   > "I've created `.context.md` at your project root.
+   > Review and fill in any blanks marked ___ when you have time."
+5. Proceed with the original task — do NOT wait for user to review files first
+
+**If user refuses to answer or says "just do it":**
+Use reasonable defaults, note assumptions at the top of generated files:
+```
+# Assumptions made during generation — review and correct as needed
+# strapi_version: v5 (assumed)
+# main_branch: main (assumed)
+# ticket_prefix: TICKET (assumed)
+```
 
 ---
 
@@ -62,7 +99,7 @@ In v4: use `strapi.entityService`; drop to `strapi.db.query` only for raw aggreg
 | Needs localization? | Enable `i18n` at creation — retrofitting requires a migration |
 | Draft/publish workflow? | Enable `draftAndPublish` at creation — same reason |
 
-For relation cardinality (oneToOne, manyToOne, manyToMany, morphTo) — see `references/strapi-customization.md`.
+For relation cardinality (oneToOne, manyToOne, manyToMany, morphTo) — see `references/strapi-schema.md`.
 
 ### Plugin vs API content-type
 
@@ -81,7 +118,7 @@ Don't write custom JWT logic — extend `users-permissions` only where needed.
 
 ### GraphQL vs REST
 
-Enable GraphQL when clients have diverse, unpredictable data-shape needs (mobile + web + third-party). Stick with REST for a single consumer or performance-critical paths. Both can coexist. Always set `depthLimit` and `amountLimit` — without them a single nested query can DDoS the DB. See `references/strapi-customization.md` for config and schema extension patterns.
+Enable GraphQL when clients have diverse, unpredictable data-shape needs (mobile + web + third-party). Stick with REST for a single consumer or performance-critical paths. Both can coexist. Always set `depthLimit` and `amountLimit` — without them a single nested query can DDoS the DB. See `references/strapi-graphql.md` for config and schema extension patterns.
 
 ### Populate (the #1 performance decision)
 
@@ -140,6 +177,9 @@ Read the relevant file when the condition matches — do NOT load all at once.
 - `references/strapi-schema.md` — Read when task involves relation types, plugins, extensions, or Document Service v5 API
 - `references/strapi-server.md` — Read when task involves middlewares, policies, lifecycle hooks, custom routes, cron jobs, or webhooks
 - `references/strapi-graphql.md` — Read when task involves GraphQL setup, custom queries/mutations, or resolver config
+
+**Git & Workflow**
+- `references/git-workflow.md` — Read when task involves commit messages, branch naming, git tags, releases, changelog, or PR descriptions
 
 **Project Context**
 - `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
