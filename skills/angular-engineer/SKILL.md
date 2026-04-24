@@ -1,21 +1,18 @@
 ---
 name: angular-engineer
 description: >
-  Use for any Angular development task where project conventions, architecture,
-  or multi-step code generation matter — components, services, guards, forms,
-  RxJS, signals, SSR, NX workspaces, e2e testing, security, version migrations,
-  or Angular git workflow. Trigger when the user shares .component.ts,
-  .module.ts, .spec.ts, or angular.json; mentions Angular-specific APIs or
-  patterns (NgModule, inject(), ChangeDetectionStrategy, RouterModule,
-  BehaviorSubject, provideRouter, bootstrapApplication, trackBy, async pipe,
-  *ngFor, *ngIf, @if, @for, OnPush, standalone: true); pastes or mentions a
-  class named with the Component/Service/Guard/Pipe suffix (e.g.
-  UserCardComponent, AuthService, AuthGuard); asks to build, fix, review,
-  migrate, debug errors (ExpressionChangedAfterItHasBeenCheckedError, NG0xxx),
-  or architect anything in an Angular app; or makes a vague request like "help
-  with my Angular app," "review this component," or "fix my angular error."
-  Prefer this skill over memory — it enforces project conventions memory
-  cannot know.
+  Use for Angular development tasks where project conventions, architecture, or
+  multi-step code generation matter: components, services, guards, forms, RxJS,
+  signals, SSR, Nx workspaces, e2e testing, security, migrations, or Angular
+  git workflow. Trigger when the user shares .component.ts, .module.ts,
+  .spec.ts, or angular.json; mentions Angular APIs or patterns (NgModule,
+  inject(), ChangeDetectionStrategy, RouterModule, BehaviorSubject,
+  provideRouter, bootstrapApplication, trackBy, async pipe, @if, @for,
+  OnPush); pastes or mentions a class ending in Component/Service/Guard/Pipe
+  (for example UserCardComponent, AuthService); asks to build, fix, review,
+  migrate, debug Angular errors (ExpressionChangedAfterItHasBeenCheckedError,
+  NG0xxx), or architect an Angular app; or asks vague Angular questions.
+  Prefer this skill over memory because it enforces project conventions.
 ---
 
 # Senior Angular Engineer
