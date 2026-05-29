@@ -60,7 +60,7 @@ To list every `SKILL.md` in the repo:
 ./scripts/list-skills.sh
 ```
 
-For my own dev loop, symlink every shippable skill into Claude, Codex, and Gemini, and inject shared references:
+For my own dev loop, symlink every shippable skill into Claude, Codex, and a local Gemini extension, and inject shared references:
 
 ```bash
 ./scripts/link-skills.sh
@@ -107,14 +107,17 @@ Each skill is its own directory containing a `SKILL.md` file with YAML frontmatt
 
 The `scripts/link-skills.sh` script performs two main actions:
 
-1.  **Skill Linking**: It symlinks each grouped skill folder from this repo into `$HOME/.claude/skills`, `$HOME/.codex/skills`, and `$HOME/.gemini/skills` using the skill directory name.
+1.  **Skill Linking**: It symlinks each grouped skill folder from this repo into `$HOME/.claude/skills` and `$HOME/.codex/skills` using the skill directory name. For Gemini, it creates a local extension at `$HOME/.gemini/extensions/agent-skills` and symlinks skills into that extension's `skills/` directory.
 2.  **Reference Injection**: It symlinks shared references (from `_shared/references/`) into the specific skill's `references/` folder, ensuring consistency across different agents.
 
 The dev-loop scripts use these provider targets:
 
 - `$HOME/.claude/skills`
 - `$HOME/.codex/skills`
-- `$HOME/.gemini/skills`
+- `$HOME/.gemini/extensions/agent-skills/skills`
+
+Gemini CLI discovers skills bundled inside extensions, so the script also writes `$HOME/.gemini/extensions/agent-skills/gemini-extension.json`.
+Any old symlinks in `$HOME/.gemini/skills` are removed when they are safe symlinks; non-symlink entries are skipped.
 
 For those scripts, shippable skills are skills in `engineering/`, `productivity/`, and `misc/`. Skills in `personal/`, `in-progress/`, and `deprecated/` are listed but not linked.
 The Claude plugin manifest follows the same shippable-skill rule, so plugin installs do not include personal, draft, or deprecated skills.

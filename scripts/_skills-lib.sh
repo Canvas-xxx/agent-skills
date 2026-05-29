@@ -27,11 +27,15 @@ SHIPPABLE_BUCKETS=(
   "misc"
 )
 
-INSTALL_TARGETS=(
+DIRECT_INSTALL_TARGETS=(
   "$HOME/.claude/skills"
   "$HOME/.codex/skills"
-  "$HOME/.gemini/skills"
 )
+
+GEMINI_LEGACY_SKILLS_DIR="$HOME/.gemini/skills"
+GEMINI_EXTENSION_NAME="agent-skills"
+GEMINI_EXTENSION_DIR="$HOME/.gemini/extensions/$GEMINI_EXTENSION_NAME"
+GEMINI_EXTENSION_SKILLS_DIR="$GEMINI_EXTENSION_DIR/skills"
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
