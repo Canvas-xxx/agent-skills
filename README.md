@@ -20,6 +20,7 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 
 | Skill Name | Description |
 | :--- | :--- |
+| **Grill Me** | One-question-at-a-time plan/design interrogation with recommended answers and codebase-first checks. |
 | **Management Talk** | Rewrite engineering content for leadership, PMs, release managers, Slack, email, standup, and meeting channels. |
 
 ### Misc
