@@ -1,180 +1,66 @@
 ---
 name: strapi-engineer
-description: >
-  Strapi project guidance for content types, plugins, controllers, services,
-  routes, policies, lifecycle hooks, RBAC, JWT, populate queries, webhooks,
-  GraphQL, architecture decisions, and project git workflow.
+description: "Build, modify, review, and debug Strapi applications across content types, controllers, services, routes, policies, lifecycle hooks, plugins, auth, GraphQL, and tests. Use when working on Strapi v4 or v5 backend code, project architecture, schema design, API behavior, or production workflow."
 ---
 
-# Strapi Senior Engineer
+# Strapi Engineer
 
-Senior Strapi engineer, v4 & v5. Write production-grade code, make explicit design
-decisions with rationale, follow TDD (Red → Green → Refactor). Show test alongside
-implementation. Read the relevant reference file before tackling complex tasks.
+Apply senior Strapi engineering judgment to v4 and v5 projects, with clear design choices, production-grade code, and focused validation.
 
----
+## When to Use
 
-## Step 0: Load Project Context
+Use this skill for Strapi application work: content-type schemas, API controllers, services, routes, policies, middleware, lifecycle hooks, plugins, extensions, RBAC, JWT, GraphQL, populate strategy, webhooks, cron, tests, migrations, and project workflow.
 
-### If `.context.md` exists
-1. READ `.context.md` — focus on Stack + Git sections
-2. Proceed with task
+Use a narrower skill instead when the request is mainly generic TypeScript, frontend Angular, security auditing, analytics, or a non-Strapi backend.
 
-### If `.context.md` does NOT exist
-1. READ `references/context-template.md` to understand the required format
-2. Ask these questions (all at once — not one by one):
-   - Strapi version? (v4 / v5)
-   - Is draftAndPublish enabled?
-   - Is i18n enabled?
-   - Auth method? (users-permissions JWT / API tokens)
-   - Main branch name? (main / master / trunk)
-   - Ticket prefix? (e.g. BNCP, JIRA)
-3. Generate `.context.md` immediately
-   using the format defined in `references/context-template.md`
-4. Tell the user:
-   > "I've created `.context.md` at your project root.
-   > Review and fill in any blanks marked ___ when you have time."
-5. Proceed with the original task — do NOT wait for user to review files first
+## Core Rule
 
-**If user refuses to answer or says "just do it":**
-Use reasonable defaults, note assumptions at the top of generated files:
-```
-# Assumptions made during generation — review and correct as needed
-# strapi_version: v5 (assumed)
-# main_branch: main (assumed)
-# ticket_prefix: TICKET (assumed)
-```
+Choose the Strapi layer that matches the responsibility, keep controllers thin, put business logic in services, and validate behavior with tests or explicit runtime checks.
 
----
+## Project Context
 
-## Design Decisions
+1. Look for `.context.md` in the project root and read the Stack and Git sections when present.
+2. If project context is missing and the task depends on it, infer what you can from `package.json`, `config/`, `src/`, and existing tests before asking questions.
+3. When context remains unclear, ask for only the missing decisions that affect implementation: Strapi version, draft/publish, i18n, auth method, main branch, and ticket prefix.
+4. If the user asks to create project context, load `references/context-template.md` and write `.context.md` using the local template.
 
-State the architectural choice and reason *before* writing code.
+## Workflow
 
-### Right layer for the job
+1. Identify the Strapi version, package manager, TypeScript setup, test framework, and existing API/plugin structure.
+2. State the important design decision before changing code, especially layer choice, data API choice, auth boundary, schema relation, or populate shape.
+3. Prefer existing project conventions for factories, services, naming, route files, tests, and config.
+4. Implement the smallest behavior slice. For risky or user-facing logic, write or update tests first when practical.
+5. Sanitize public controller input and output, avoid hardcoded secrets, and keep populate/select explicit.
+6. Validate with targeted tests, lint/typecheck, or a concrete manual check. Report any validation you could not run.
 
-| Concern | Layer |
-|---|---|
-| Allow / deny access | **Policy** — returns `true`/`false`, runs before controller |
-| Request/response cross-cutting (logging, rate-limit) | **Middleware** — wraps Koa context |
-| Entity operation side effect | **Lifecycle hook** (`beforeCreate`, `afterUpdate`, …) |
-| Override plugin internals | **Extension** (`src/extensions/`) |
-| Portable, self-contained feature | **Plugin** — owns its content types + admin UI |
-| Project-specific data & CRUD | **API content-type** — the default |
+## Strapi Defaults
 
-**register() vs bootstrap():** Use `register()` only to register custom fields or extend type definitions (plugins aren't fully loaded yet). Use `bootstrap()` for everything that runs at startup: cron jobs, webhooks, seeding, event listeners.
+- Strapi v5: prefer `strapi.documents('api::x.x')` for content types because it is locale-aware and draft/publish-aware.
+- Strapi v4: use `strapi.entityService`; use `strapi.db.query` only for raw aggregations, joins, or cases unsupported by Entity Service.
+- Controllers validate and sanitize request data, delegate to services, and return `this.transformResponse(result, meta)`.
+- Services hold business rules and should not depend on `ctx`.
+- Policies authorize access before controllers and return `true` or `false`.
+- Middleware handles cross-cutting request/response concerns.
+- Lifecycle hooks handle entity operation side effects.
+- Plugins package reusable features; extensions override existing plugin behavior without forking.
 
-### Error handling: where to throw what
+## Reference Map
 
-| Layer | Use |
-|---|---|
-| Controller | `ctx.notFound()` / `ctx.badRequest()` / `ctx.forbidden()` for known error states |
-| Service (business rule) | `throw new ApplicationError('msg')` from `@strapi/utils` |
-| Service (bad input shape) | `throw new ValidationError('msg', { errors })` from `@strapi/utils` |
-| Policy | `ctx.forbidden('reason')` then `return false` |
+Load only the reference needed for the current task:
 
-Never throw a raw `Error` in a service — Strapi catches it as a generic 500 with no client context.
+- `references/strapi-decisions.md`: layer choice, content modeling, auth, error handling, API choice, and populate rules.
+- `references/strapi-testing.md`: test setup, mocked Strapi, supertest, fixtures, or test patterns.
+- `references/strapi-schema.md`: relation types, plugins, extensions, or Document Service examples.
+- `references/strapi-server.md`: middleware, policies, lifecycle hooks, custom routes, cron, or webhooks.
+- `references/strapi-graphql.md`: GraphQL setup, custom queries/mutations, resolvers, depth limits, or amount limits.
+- `references/git-workflow.md`: branch naming, commits, tags, releases, changelog, or PR descriptions.
+- `references/context-template.md`: `.context.md` creation.
 
-### v4 vs v5 data API
+## Review Checklist
 
-**In v5 code, always use `strapi.documents('api::x.x')`.** It is locale- and draft/publish-aware. Only fall back to `strapi.entityService` when explicitly maintaining v4 compatibility or working in a v4 project. Never mix both in the same file.
-
-In v4: use `strapi.entityService`; drop to `strapi.db.query` only for raw aggregations or joins.
-
-### Content-type schema decisions
-
-| Question | Answer |
-|---|---|
-| Reused structure across multiple types? | **Component** — not a separate content type + relation |
-| Variable structure per entry? | **Dynamic Zone** |
-| Shared reference data (Author, Category)? | Separate content type + relation |
-| Owned metadata (SEO, OpenGraph)? | Component nested in the parent type |
-| Needs localization? | Enable `i18n` at creation — retrofitting requires a migration |
-| Draft/publish workflow? | Enable `draftAndPublish` at creation — same reason |
-
-For relation cardinality (oneToOne, manyToOne, manyToMany, morphTo) — see `references/strapi-schema.md`.
-
-### Plugin vs API content-type
-
-Plugin when: portable across projects, needs admin panel UI, registers custom fields.
-API content-type otherwise.
-
-### Auth & access control
-
-| Scenario | Use |
-|---|---|
-| User login / roles | `users-permissions` (JWT) |
-| Server-to-server | API tokens |
-| Resource-level auth | Custom policy (e.g. `is-owner`) |
-
-Don't write custom JWT logic — extend `users-permissions` only where needed.
-
-### GraphQL vs REST
-
-Enable GraphQL when clients have diverse, unpredictable data-shape needs (mobile + web + third-party). Stick with REST for a single consumer or performance-critical paths. Both can coexist. Always set `depthLimit` and `amountLimit` — without them a single nested query can DDoS the DB. See `references/strapi-graphql.md` for config and schema extension patterns.
-
-### Populate (the #1 performance decision)
-
-Over-populating is the most common Strapi performance bug:
-- Populate only what the client renders; select specific fields on relations
-- Call `sanitizeQuery` (strips unsafe input params) **and** `sanitizeOutput` (strips private fields) on public endpoints
-- Build a controlled populate object in the service, not ad-hoc in the controller
-
----
-
-## Project Structure
-
-```
-src/api/[content-type]/
-├── content-types/[content-type]/
-│   ├── schema.json        # source of truth
-│   └── lifecycles.ts
-├── controllers/[content-type].ts
-├── routes/
-│   ├── [content-type].ts
-│   └── custom-[content-type].ts
-└── services/[content-type].ts
-
-src/plugins/[name]/server/         # controllers, services, routes, content-types
-src/extensions/[plugin]/strapi-server.ts
-```
-
----
-
-## Standards
-
-**Controllers** — thin. Validate query → delegate to service → `this.transformResponse(result, meta)`. Call `sanitizeQuery` and `sanitizeOutput` on public endpoints. No business logic.
-
-**Services** — business logic lives here. Compose Document Service / entityService calls. No direct `ctx` access. Throw `ApplicationError` / `ValidationError`, never raw `Error`.
-
-**Routes** — explicitly list active CRUD routes. Use `prefix` config to version breaking changes.
-
-**Schema** — changes belong in `schema.json`, not runtime code. Add `// WHY:` comments for non-obvious decisions.
-
----
-
-## TDD Checklist
-
-- Test first (Red → Green → Refactor)
-- TypeScript strict mode, no implicit `any`
-- Sanitize all queries and outputs on public endpoints
-- No hardcoded secrets — use `strapi.config.get()` or env vars
-
----
-
-## Reference Files
-
-Read the relevant file when the condition matches — do NOT load all at once.
-
-- `references/strapi-testing.md` — Read when task involves writing tests, test setup, mock strapi, or supertest
-- `references/strapi-schema.md` — Read when task involves relation types, plugins, extensions, or Document Service v5 API
-- `references/strapi-server.md` — Read when task involves middlewares, policies, lifecycle hooks, custom routes, cron jobs, or webhooks
-- `references/strapi-graphql.md` — Read when task involves GraphQL setup, custom queries/mutations, or resolver config
-
-**Git & Workflow**
-- `references/git-workflow.md` — Read when task involves commit messages, branch naming, git tags, releases, changelog, or PR descriptions
-
-**Project Context**
-- `references/context-template.md` — Read when .context.md does not exist and context files need to be generated for the first time
-- `.context.md` — READ at start of every session — project overview and pointers
-- `.context/git.md` — Read when task involves branching strategy or release process
+- Correct layer owns the behavior.
+- v4/v5 data API usage is consistent inside each file.
+- Public endpoints sanitize query input and output data.
+- Populate/select returns only fields the client needs.
+- Auth, RBAC, policies, and private fields are handled deliberately.
+- Tests or explicit checks cover the changed behavior.
