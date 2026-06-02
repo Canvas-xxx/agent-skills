@@ -33,6 +33,7 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 | [**Grill Me**](skills/productivity/grill-me/SKILL.md) | Shape goals, context, decisions, risks, dependencies, and tradeoffs through a focused interview loop. Use when the user asks to be grilled, stress-test a plan, clarify a vague proposal, prepare for review, or decide before implementation. |
 | [**Management Talk**](skills/productivity/management-talk/SKILL.md) | Rewrite engineering updates into clear leadership and cross-functional communication while preserving state, impact, ownership, risks, and next steps. Use when drafting Jira comments, Slack posts, standup notes, emails, meeting talking points, or executive summaries from technical source material. |
 | [**Stakeholder Update**](skills/productivity/stakeholder-update/SKILL.md) | Draft audience-aware stakeholder updates that clarify status, impact, risks, decisions, and next steps. Use when preparing status reports, sprint summaries, launch notes, risk escalations, executive updates, customer progress notes, or multi-audience variants. |
+| [**Setup Context**](skills/productivity/setup-context/SKILL.md) | Scaffold shared project context files in .context/ so skills read domain knowledge without re-asking orientation questions. Use when onboarding skills to a new or existing repo, or when skills appear to lack shared project context. |
 
 ### Misc
 

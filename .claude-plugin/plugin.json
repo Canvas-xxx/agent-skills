@@ -22,6 +22,7 @@
     "./skills/productivity/caveman",
     "./skills/productivity/grill-me",
     "./skills/productivity/management-talk",
-    "./skills/productivity/stakeholder-update"
+    "./skills/productivity/stakeholder-update",
+    "./skills/productivity/setup-context"
   ]
 }
