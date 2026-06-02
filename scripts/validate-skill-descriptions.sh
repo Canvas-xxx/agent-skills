@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# validate-skill-descriptions.sh — Check public skill descriptions stay neutral
+# validate-skill-descriptions.sh — Check public skill descriptions avoid forceful activation wording
 #
 # Usage:
 #   ./scripts/validate-skill-descriptions.sh
@@ -10,7 +10,7 @@ set -euo pipefail
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/_skills-lib.sh"
 
-BANNED_PATTERN='ALWAYS use|MUST use|Use when|Trigger when|Trigger on|proactively whenever|Do NOT attempt|no exceptions'
+BANNED_PATTERN='ALWAYS use|MUST use|Trigger when|Trigger on|proactively whenever|Do NOT attempt|no exceptions'
 FAILED=0
 
 check_text() {
@@ -18,7 +18,7 @@ check_text() {
   local text="$2"
 
   if printf '%s\n' "$text" | grep -Eiq "$BANNED_PATTERN"; then
-    log_error "$label contains activation-heavy wording"
+    log_error "$label contains overly forceful activation wording"
     printf '%s\n' "$text" | grep -Ein "$BANNED_PATTERN" || true
     FAILED=1
   fi
@@ -34,7 +34,7 @@ extract_frontmatter() {
   ' "$file"
 }
 
-log_section "Checking README inventory descriptions"
+log_section "Checking README skill descriptions"
 check_text "README.md" "$(sed -n '/## .*Available Skills/,/## .*Getting Started/p' "$REPO_ROOT/README.md")"
 
 for bucket_readme in \
@@ -54,11 +54,11 @@ done < <(list_shippable_skill_dirs)
 if [ "$FAILED" -ne 0 ]; then
   cat <<'EOF'
 
-Public skill descriptions should be neutral inventory text.
-Move trigger rules such as "Use when", "ALWAYS use", or "Trigger when" into the
-body of the relevant SKILL.md under a "When to Use" section.
+Public skill descriptions may use concise "Use when" trigger context, but should
+avoid overly forceful activation wording such as "ALWAYS use", "MUST use", or
+"Trigger when".
 EOF
   exit 1
 fi
 
-log_success "Skill descriptions are neutral"
+log_success "Skill descriptions avoid overly forceful activation wording"

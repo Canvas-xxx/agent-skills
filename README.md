@@ -24,6 +24,7 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 
 | Skill Name | Description |
 | :--- | :--- |
+| [**Write a Skill**](skills/productivity/write-a-skill/SKILL.md) | Create, write, review, and improve reusable agent skills. Use when working on skill structure, progressive disclosure, bundled resources, examples, or validation. |
 | [**Write Story**](skills/productivity/write-story/SKILL.md) | Backlog item drafting, story splitting, acceptance criteria, and readiness review. |
 | [**Caveman**](skills/productivity/caveman/SKILL.md) | Ultra-terse communication mode for compressed technical responses. |
 | [**Grill Me**](skills/productivity/grill-me/SKILL.md) | Plan and design pressure-testing through one-question-at-a-time review. |
@@ -64,7 +65,7 @@ To list every `SKILL.md` in the repo:
 ./scripts/list-skills.sh
 ```
 
-To check that public skill descriptions stay neutral:
+To check that public skill descriptions avoid overly forceful activation wording:
 
 ```bash
 ./scripts/validate-skill-descriptions.sh
@@ -146,10 +147,10 @@ To maintain a secure environment, this project adheres to the following standard
 
 1.  Create a new folder in the appropriate bucket under `skills/`.
 2.  Add a `SKILL.md` file following the established template.
-3.  Keep the YAML `description` and README entry neutral: describe scope only, not activation policy. Avoid phrases such as `ALWAYS use`, `MUST use`, `Use when`, `Trigger when`, `Trigger on`, `proactively whenever`, `no exceptions`, and `Do NOT attempt`.
-4.  Put activation rules inside the `SKILL.md` body under a `When to Use` or `When Not to Use` section, with clear boundaries against overlapping skills.
+3.  Write the YAML `description` and README entry with enough signal for agent selection. Prefer two sentences: capability first, then `Use when` with specific trigger keywords, contexts, file types, tools, or outcomes. Avoid phrases such as `ALWAYS use`, `MUST use`, `Trigger when`, `Trigger on`, `proactively whenever`, `no exceptions`, and `Do NOT attempt`.
+4.  Put detailed activation boundaries inside the `SKILL.md` body under a `When to Use` or `When Not to Use` section, with clear boundaries against overlapping skills.
 5.  Add supporting documentation in the `references/` subfolder.
 6.  Update the `get_shared_refs` function in `scripts/_skills-lib.sh` if your skill needs shared assets.
-7.  For skills in `engineering/`, `productivity/`, or `misc/`, add a neutral linked entry to the top-level `README.md`, the bucket `README.md`, and `.claude-plugin/plugin.json`. Do not add `personal/`, `in-progress/`, or `deprecated/` skills to those shippable indexes.
+7.  For skills in `engineering/`, `productivity/`, or `misc/`, add a linked entry to the top-level `README.md`, the bucket `README.md`, and `.claude-plugin/plugin.json`. Do not add `personal/`, `in-progress/`, or `deprecated/` skills to those shippable indexes.
 8.  Run `./scripts/list-skills.sh` and `./scripts/validate-skill-descriptions.sh`.
 9.  Submit a Pull Request!
