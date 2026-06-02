@@ -18,7 +18,7 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 | [**Security Audit**](skills/engineering/security-audit/SKILL.md) | Review application security across code, APIs, infrastructure, authentication, authorization, secrets, dependencies, and compliance gaps. Use when assessing vulnerabilities, threat models, pentest findings, security controls, exploitability, impact, or remediation plans. |
 | [**Strapi Engineer**](skills/engineering/strapi-engineer/SKILL.md) | Build, modify, review, and debug Strapi applications across content types, controllers, services, routes, policies, lifecycle hooks, plugins, auth, GraphQL, and tests. Use when working on Strapi v4 or v5 backend code, project architecture, schema design, API behavior, or production workflow. |
 | [**TDD**](skills/engineering/tdd/SKILL.md) | Test-driven development workflow using red-green-refactor behavior slices. |
-| [**Technical Trading Strategy**](skills/engineering/technical-trading-strategy/SKILL.md) | Technical trading strategy research and engineering guidance for rule design, Python backtesting, validation, risk controls, and implementation review. |
+| [**Technical Trading Strategy**](skills/engineering/technical-trading-strategy/SKILL.md) | Design, review, and implement rule-based technical trading strategies with disciplined backtesting, validation, risk controls, and Python engineering guidance. Use when working on indicator rules, strategy specs, backtest code, execution assumptions, market data, or live-trading readiness. |
 
 ### Productivity
 
