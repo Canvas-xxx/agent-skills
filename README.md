@@ -9,7 +9,8 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 | Skill Name | Description |
 | :--- | :--- |
 | [**Angular Engineer**](skills/engineering/angular-engineer/SKILL.md) | Build, modify, review, and debug Angular applications using project conventions, modern Angular patterns, RxJS, Signals, testing, SSR, and Nx guidance. Use when working on Angular components, services, routing, forms, guards, migrations, performance, security, or frontend architecture. |
-| [**Debug Mantra**](skills/engineering/debug-mantra/SKILL.md) | Debug failures with a disciplined repro, fail-path trace, hypothesis falsification, and experiment ledger. Use when investigating bugs, flaky tests, crashes, regressions, hangs, or unexplained behavior before proposing a fix. |
+| [**Debug Mantra**](skills/engineering/debug-mantra/SKILL.md) | Debug failures with a compact repro, fail-path trace, hypothesis falsification, and breadcrumb ledger. Use when investigating a bug or failure needs lightweight structure before proposing a fix. |
+| [**Diagnose**](skills/engineering/diagnose/SKILL.md) | Diagnose hard bugs and performance regressions through a disciplined feedback-loop investigation. Use when a bug, flaky failure, crash, hang, data issue, or slowdown needs reproduction, minimisation, hypotheses, instrumentation, a fix, and a regression test. |
 | [**GA4 Measurement**](skills/engineering/ga4-measurement/SKILL.md) | Plan, implement, review, and validate GA4/GTM measurement for product flows, funnels, feature adoption, conversion, errors, and performance. Use when designing event taxonomies, dataLayer or gtag tracking, GA4 reports, GTM setup, analytics QA, or measurement plans. |
 | [**Git Guardrails for Claude Code**](skills/engineering/git-guardrails-claude-code/SKILL.md) | Install Claude Code PreToolUse hooks that block dangerous git commands before execution. Use when setting up local or global guardrails for git push, force push, reset --hard, clean, branch deletion, checkout ., or restore .. |
 | [**Post-mortem**](skills/engineering/post-mortem/SKILL.md) | Write engineering post-mortems for fixed and validated bugs with symptom, root cause, mechanism, fix, validation, and follow-ups. Use when closing a bug, drafting an RCA, documenting a fix, or converting a debug ledger into a maintainer-readable record. |
@@ -57,7 +58,8 @@ Use the full portable install by default. Link every shippable skill, then rely 
 | :--- | :--- |
 | The goal, plan, or decision is unclear and needs an interview before work starts. | [**Grill Me**](skills/productivity/grill-me/SKILL.md) |
 | A written plan, PR, diff, design doc, or implementation approach needs independent review. | [**Scrutinize**](skills/engineering/scrutinize/SKILL.md) |
-| A bug, crash, flaky test, hang, regression, or unexplained behavior has an unknown cause. | [**Debug Mantra**](skills/engineering/debug-mantra/SKILL.md) |
+| A bug or failure needs a compact active-debugging discipline before a fix is proposed. | [**Debug Mantra**](skills/engineering/debug-mantra/SKILL.md) |
+| A hard bug, flaky failure, crash, hang, production-only issue, data issue, or performance regression needs a full feedback-loop investigation. | [**Diagnose**](skills/engineering/diagnose/SKILL.md) |
 | A behavior change should be driven through red-green-refactor tests. | [**TDD**](skills/engineering/tdd/SKILL.md) |
 | A fixed and validated bug needs an engineering RCA or post-mortem. | [**Post-mortem**](skills/engineering/post-mortem/SKILL.md) |
 | Incoming tracker issues need classification, state movement, reporter follow-up, or AFK-agent handoff. | [**Triage**](skills/productivity/triage/SKILL.md) |

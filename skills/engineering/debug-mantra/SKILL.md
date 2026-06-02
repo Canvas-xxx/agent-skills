@@ -1,6 +1,6 @@
 ---
 name: debug-mantra
-description: "Debug failures with a disciplined repro, fail-path trace, hypothesis falsification, and experiment ledger. Use when investigating bugs, flaky tests, crashes, regressions, hangs, or unexplained behavior before proposing a fix."
+description: "Debug failures with a compact repro, fail-path trace, hypothesis falsification, and breadcrumb ledger. Use when investigating a bug or failure needs lightweight structure before proposing a fix."
 ---
 
 # Debug Mantra
@@ -9,9 +9,9 @@ Run debugging as an evidence loop: reproduce, trace, falsify, then fix.
 
 ## When to Use
 
-Use this skill for active debugging: failing tests, production defects, flaky behavior, crashes, hangs, performance regressions, data corruption, or any bug report where the cause is not already proven.
+Use this skill for active debugging that needs lightweight structure: failing tests, local defects, unexpected errors, and bug reports where the cause is not already proven.
 
-Use the relevant language or framework skill alongside this one when implementation patterns matter. After the bug is fixed and validated, use `post-mortem` for the engineering writeup.
+Use `diagnose` for heavier investigations: hard bugs, performance regressions, flaky failures, crashes, hangs, production-only symptoms, multi-service failures, or cases that need minimisation, bisection, trace replay, or human-in-the-loop reproduction. Use the relevant language or framework skill alongside this one when implementation patterns matter. After the bug is fixed and validated, use `post-mortem` for the engineering writeup.
 
 ## When Not to Use
 
