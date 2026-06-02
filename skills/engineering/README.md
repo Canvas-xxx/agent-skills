@@ -4,7 +4,7 @@ Daily code-work skills.
 
 | Skill Name | Description |
 | :--- | :--- |
-| [Angular Engineer](angular-engineer/SKILL.md) | Angular project guidance for components, services, routing, forms, RxJS, Signals, SSR, and migrations. |
+| [Angular Engineer](angular-engineer/SKILL.md) | Build, modify, review, and debug Angular applications using project conventions, modern Angular patterns, RxJS, Signals, testing, SSR, and Nx guidance. Use when working on Angular components, services, routing, forms, guards, migrations, performance, security, or frontend architecture. |
 | [Debug Mantra](debug-mantra/SKILL.md) | Structured debugging workflow for reproducing, tracing, and falsifying bugs. |
 | [GA4 Analytics](ga4-analytics/SKILL.md) | GA4 and GTM measurement planning, event taxonomy, funnels, and tracking implementation. |
 | [Git Guardrails for Claude Code](git-guardrails-claude-code/SKILL.md) | Set up Claude Code hooks that block dangerous git commands before they execute. |
