@@ -27,7 +27,7 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 | [**Write a Skill**](skills/productivity/write-a-skill/SKILL.md) | Create, write, review, and improve reusable agent skills. Use when working on skill structure, progressive disclosure, bundled resources, examples, or validation. |
 | [**Write Story**](skills/productivity/write-story/SKILL.md) | Backlog item drafting, story splitting, acceptance criteria, and readiness review. |
 | [**Caveman**](skills/productivity/caveman/SKILL.md) | Ultra-compressed communication mode that drops filler, articles, and pleasantries while keeping technical accuracy. Use when the user says caveman mode, talk like caveman, use caveman, less tokens, be brief, terse mode, or invokes /caveman. |
-| [**Grill Me**](skills/productivity/grill-me/SKILL.md) | Plan and design pressure-testing through one-question-at-a-time review. |
+| [**Grill Me**](skills/productivity/grill-me/SKILL.md) | Pressure-test plans and designs through focused interview loops that resolve decisions, risks, dependencies, and tradeoffs. Use when the user asks to be grilled, stress-test a plan, or sharpen a design before implementation. |
 | [**Management Talk**](skills/productivity/management-talk/SKILL.md) | Engineering-content rewrite workflow for leadership and cross-functional audiences. |
 | [**Stakeholder Update**](skills/productivity/stakeholder-update/SKILL.md) | Audience-aware status updates, sprint summaries, launch notes, and risk escalations. |
 
