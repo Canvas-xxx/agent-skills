@@ -90,6 +90,19 @@ cd agent-skills
 ./scripts/install-skills.sh
 ```
 
+The installer can also create a remembered command:
+
+```bash
+~/.local/bin/blvck-skills -> <repo>/scripts/install-skills.sh
+```
+
+After that, install skills into any project with:
+
+```bash
+cd /path/to/project
+blvck-skills
+```
+
 The installer lets you choose:
 
 - Claude, Codex, Gemini, or multiple CLIs in one run
