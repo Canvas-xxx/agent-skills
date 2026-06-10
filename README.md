@@ -54,7 +54,7 @@ Skills that are no longer used.
 
 ## 🧭 Skill Selection Guide
 
-Use the full portable install by default. Link every shippable skill, then rely on concise descriptions and these boundaries to choose the right skill for the task.
+Use the full portable install by default. Install every shippable skill, then rely on concise descriptions and these boundaries to choose the right skill for the task.
 
 | Situation | Skill |
 | :--- | :--- |
@@ -72,7 +72,7 @@ Use the full portable install by default. Link every shippable skill, then rely 
 
 ## 🚀 Getting Started
 
-This repository uses a symlinking strategy to "install" shippable skills into your AI assistant's configuration directories.
+This repository includes an interactive installer for adding shippable skills to your AI assistant's configuration directories.
 It also includes a Claude Code plugin manifest for loading the same shippable skills as a namespaced plugin.
 
 ### Prerequisites
@@ -82,17 +82,25 @@ It also includes a Claude Code plugin manifest for loading the same shippable sk
 
 ### Installation
 
-For a new computer, clone this repository and link every shippable skill into the supported agent directories:
+For a new computer, clone this repository and run the interactive installer:
 
 ```bash
 git clone <repo-url>
 cd agent-skills
-./scripts/link-skills.sh
+./scripts/install-skills.sh
 ```
 
-The script installs skills from `engineering/`, `productivity/`, and `misc/`. It does not install skills from `personal/`, `in-progress/`, or `deprecated/`.
+The installer lets you choose:
 
-Linked means the skill is available for the agent to discover. It should not mean every full `SKILL.md` is loaded into the model context at startup; agents should use the skill name and description to choose a relevant skill, then load that skill's detailed instructions only when needed.
+- Claude, Codex, Gemini, or multiple CLIs in one run
+- Global installation or project-based installation
+- All shippable skills, bucket-level groups, or individual skills
+
+Global installs symlink selected skills from this repository into your CLI configuration. Project installs copy selected skills into the target project so the project can carry its own skill set.
+
+The installer includes skills from `engineering/`, `productivity/`, and `misc/`. It does not install skills from `personal/`, `in-progress/`, or `deprecated/`.
+
+Installed means the skill is available for the agent to discover. It should not mean every full `SKILL.md` is loaded into the model context at startup; agents should use the skill name and description to choose a relevant skill, then load that skill's detailed instructions only when needed.
 
 To list every `SKILL.md` in the repo:
 
@@ -106,7 +114,7 @@ To check that public skill descriptions avoid overly forceful activation wording
 ./scripts/validate-skill-descriptions.sh
 ```
 
-For my own dev loop, symlink every shippable skill into Claude, Codex, and a local Gemini extension, and inject shared references:
+For a maintainer development loop, symlink every shippable skill into Claude, Codex, and a local Gemini extension, and inject shared references:
 
 ```bash
 ./scripts/link-skills.sh
@@ -129,6 +137,7 @@ claude --plugin-dir .
 ```text
 .
 ├── scripts/                  # Skill management scripts
+│   ├── install-skills.sh     # Interactive end-user installer
 │   ├── link-skills.sh        # Link shippable skills and shared references
 │   ├── list-skills.sh        # List every SKILL.md with bucket labels
 │   └── un-link-skill.sh      # Remove provider symlinks for shippable skills
@@ -151,7 +160,23 @@ Each skill is its own directory containing a `SKILL.md` file with YAML frontmatt
 
 ## 🛠️ How it Works
 
-The `scripts/link-skills.sh` script performs two main actions:
+The `scripts/install-skills.sh` script guides users through CLI, scope, and skill selection.
+
+For global installs, it symlinks selected skill folders into the chosen CLI configuration paths:
+
+- `$HOME/.claude/skills`
+- `$HOME/.codex/skills`
+- `$HOME/.gemini/extensions/agent-skills/skills`
+
+For project installs, it copies selected skill folders into the target project paths:
+
+- `PROJECT/.claude/skills`
+- `PROJECT/.codex/skills`
+- `PROJECT/.gemini/extensions/agent-skills/skills`
+
+Project installs write `.agent-skills-install.json` in each copied skill folder and a project-level `.agent-skills-install.json` manifest. Shared references from `_shared/references/` are materialized as real files inside copied project skills.
+
+The `scripts/link-skills.sh` maintainer shortcut performs two main actions:
 
 1.  **Skill Linking**: It symlinks each grouped skill folder from this repo into `$HOME/.claude/skills` and `$HOME/.codex/skills` using the skill directory name. For Gemini, it creates a local extension at `$HOME/.gemini/extensions/agent-skills` and symlinks skills into that extension's `skills/` directory.
 2.  **Reference Injection**: It symlinks shared references (from `_shared/references/`) into the specific skill's `references/` folder, ensuring consistency across different agents.
