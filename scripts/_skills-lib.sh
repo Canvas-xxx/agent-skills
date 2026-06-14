@@ -10,6 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SKILLS_DIR="$REPO_ROOT/skills"
+COMMANDS_DIR="$REPO_ROOT/commands"
 SHARED_DIR="$SKILLS_DIR/_shared/references"
 
 ALL_BUCKETS=(
@@ -95,6 +96,25 @@ list_shippable_skill_dirs() {
       [ -d "$skill_dir" ] || continue
       [ -f "$skill_dir/SKILL.md" ] || continue
       printf '%s\n' "${skill_dir%/}"
+    done
+  done
+}
+
+command_name_from_dir() {
+  basename "$1"
+}
+
+list_shippable_command_dirs() {
+  local bucket
+  local command_dir
+
+  for bucket in "${SHIPPABLE_BUCKETS[@]}"; do
+    [ -d "$COMMANDS_DIR/$bucket" ] || continue
+
+    for command_dir in "$COMMANDS_DIR/$bucket"/*/; do
+      [ -d "$command_dir" ] || continue
+      [ -f "$command_dir/command.md" ] || continue
+      printf '%s\n' "${command_dir%/}"
     done
   done
 }

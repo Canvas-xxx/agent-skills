@@ -35,6 +35,12 @@ A collection of specialized expert agent skills for AI assistants (like Gemini C
 | [**Stakeholder Update**](skills/productivity/stakeholder-update/SKILL.md) | Draft audience-aware stakeholder updates that clarify status, impact, risks, decisions, and next steps. Use when preparing status reports, sprint summaries, launch notes, risk escalations, executive updates, customer progress notes, or multi-audience variants. |
 | [**Setup Context**](skills/productivity/setup-context/SKILL.md) | Scaffold shared project context files in .context/ so skills read domain knowledge without re-asking orientation questions. Use when onboarding skills to a new or existing repo, or when skills appear to lack shared project context. |
 
+## ⚡ Available Slash Commands
+
+| Command | Description |
+| :--- | :--- |
+| [**pm-os-bootstrap**](commands/productivity/pm-os-bootstrap/command.md) | Bootstrap a complete PM OS in a project through an interview-driven setup workflow. Use when setting up PM identity, product context, stakeholder rules, output folders, and recurring PM workflow commands. |
+
 ### Misc
 
 Skills kept around but rarely used.
@@ -185,7 +191,7 @@ Each skill is its own directory containing a `SKILL.md` file with YAML frontmatt
 
 ## 🛠️ How it Works
 
-The `scripts/install-skills.sh` script guides users through CLI, scope, and skill selection.
+The `scripts/install-skills.sh` script guides users through content type, CLI, scope, skill selection, and slash command selection.
 
 For global installs, it symlinks selected skill folders into the chosen CLI configuration paths:
 
@@ -200,6 +206,8 @@ For project installs, it copies selected skill folders into the target project p
 - `PROJECT/.gemini/extensions/agent-skills/skills`
 
 Project installs write `.agent-skills-install.json` in each copied skill folder and a project-level `.agent-skills-install.json` manifest. Shared references from `_shared/references/` are materialized as real files inside copied project skills.
+
+Slash commands live under `commands/`. The canonical command prompt is Markdown for Claude Code and Codex. Gemini CLI uses generated TOML because Gemini custom commands cannot use markdown command files directly.
 
 The `scripts/link-skills.sh` maintainer shortcut performs two main actions:
 

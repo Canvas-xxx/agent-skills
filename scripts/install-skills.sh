@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # =============================================================================
-# install-skills.sh — Interactive installer for shippable agent skills
+# install-skills.sh — Interactive installer for shippable agent skills and commands
 #
 # Global installs symlink selected skills into CLI config directories.
-# Project installs copy selected skills into project-local CLI directories.
+# Project installs copy selected skills and commands into project-local CLI directories.
 #
 # Usage:
 #   ./scripts/install-skills.sh
@@ -33,6 +33,9 @@ CLI_IDS=("claude" "codex" "gemini")
 
 SELECTED_CLI_IDS=()
 SELECTED_SKILL_DIRS=()
+SELECTED_COMMAND_DIRS=()
+INSTALL_SKILLS=1
+INSTALL_COMMANDS=0
 SELECTED_SCOPE=""
 PROJECT_ROOT=""
 PROJECT_TARGETS=()
@@ -165,6 +168,60 @@ cli_target_dir() {
   fi
 }
 
+command_target_dir() {
+  local cli_id="$1"
+  local scope="$2"
+  local root="$3"
+
+  if [ "$scope" = "global" ]; then
+    case "$cli_id" in
+      claude) printf '%s\n' "$HOME/.claude/commands" ;;
+      codex)  printf '%s\n' "$HOME/.codex/commands" ;;
+      gemini) printf '%s\n' "$HOME/.gemini/commands" ;;
+    esac
+  else
+    case "$cli_id" in
+      claude) printf '%s\n' "$root/.claude/commands" ;;
+      codex)  printf '%s\n' "$root/.codex/commands" ;;
+      gemini) printf '%s\n' "$root/.gemini/commands" ;;
+    esac
+  fi
+}
+
+select_content() {
+  local answer
+
+  echo ""
+  log_section "Choose Content"
+  echo "  1) Skills"
+  echo "  2) Slash commands"
+  echo "  3) Both"
+  echo ""
+
+  while true; do
+    read_prompt answer "Install what? [3]: "
+    [ -n "$answer" ] || answer="3"
+    case "$answer" in
+      1|skills)
+        INSTALL_SKILLS=1
+        INSTALL_COMMANDS=0
+        return 0
+        ;;
+      2|commands|slash|slash-commands)
+        INSTALL_SKILLS=0
+        INSTALL_COMMANDS=1
+        return 0
+        ;;
+      3|both|all)
+        INSTALL_SKILLS=1
+        INSTALL_COMMANDS=1
+        return 0
+        ;;
+      *) log_warn "Enter 1 for skills, 2 for commands, or 3 for both." ;;
+    esac
+  done
+}
+
 gemini_extension_dir_for_scope() {
   local scope="$1"
   local root="$2"
@@ -281,6 +338,19 @@ load_skills() {
   done < <(list_shippable_skill_dirs)
 }
 
+load_commands() {
+  COMMAND_DIRS=()
+  COMMAND_NAMES=()
+  COMMAND_BUCKETS=()
+
+  while IFS= read -r command_dir; do
+    command_path="${command_dir#$COMMANDS_DIR/}"
+    COMMAND_DIRS+=("$command_dir")
+    COMMAND_NAMES+=("$(command_name_from_dir "$command_dir")")
+    COMMAND_BUCKETS+=("${command_path%%/*}")
+  done < <(list_shippable_command_dirs)
+}
+
 select_skills() {
   local answer token bucket_token bucket_number bucket index indexes skill_name
   local bucket_names=("engineering" "productivity" "misc")
@@ -364,26 +434,131 @@ EOF
   done
 }
 
+select_commands() {
+  local answer token bucket_number bucket index indexes command_name
+  local bucket_names=("engineering" "productivity" "misc")
+
+  load_commands
+
+  if [ "${#COMMAND_NAMES[@]}" -eq 0 ]; then
+    log_warn "No shippable slash commands found."
+    return 0
+  fi
+
+  echo ""
+  log_section "Choose Slash Commands"
+  echo "  Bucket shortcuts:"
+  index=1
+  for bucket in "${bucket_names[@]}"; do
+    printf '  b%s) %s\n' "$index" "$bucket"
+    index=$((index + 1))
+  done
+  echo ""
+  echo "  Commands:"
+  index=1
+  while [ "$index" -le "${#COMMAND_NAMES[@]}" ]; do
+    printf '  %2s) %-32s [%s]\n' "$index" "${COMMAND_NAMES[$((index - 1))]}" "${COMMAND_BUCKETS[$((index - 1))]}"
+    index=$((index + 1))
+  done
+  echo ""
+  echo "  Examples: all, b2, 1"
+  echo ""
+
+  while true; do
+    read_prompt answer "Install which slash commands? [all]: "
+    [ -n "$answer" ] || answer="all"
+    answer="$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]' | tr ',' ' ')"
+    SELECTED_COMMAND_DIRS=()
+    indexes=""
+
+    if [ "$answer" = "all" ]; then
+      indexes="$(expand_selection_tokens "all" "${#COMMAND_NAMES[@]}")"
+    else
+      for token in $answer; do
+        case "$token" in
+          b[0-9]*)
+            bucket_number="${token#b}"
+            case "$bucket_number" in
+              *[!0-9]*|"") indexes="__invalid__"; break ;;
+            esac
+            [ "$bucket_number" -ge 1 ] && [ "$bucket_number" -le "${#bucket_names[@]}" ] || {
+              indexes="__invalid__"
+              break
+            }
+            bucket="${bucket_names[$((bucket_number - 1))]}"
+            index=1
+            for command_name in "${COMMAND_NAMES[@]}"; do
+              if [ "${COMMAND_BUCKETS[$((index - 1))]}" = "$bucket" ]; then
+                indexes="${indexes}${index}
+"
+              fi
+              index=$((index + 1))
+            done
+            ;;
+          *)
+            if selected="$(expand_selection_tokens "$token" "${#COMMAND_NAMES[@]}")"; then
+              indexes="${indexes}${selected}
+"
+            else
+              indexes="__invalid__"
+              break
+            fi
+            ;;
+        esac
+      done
+    fi
+
+    if [ "$indexes" != "__invalid__" ]; then
+      while IFS= read -r index; do
+        [ -n "$index" ] || continue
+        append_unique "${COMMAND_DIRS[$((index - 1))]}" SELECTED_COMMAND_DIRS
+      done <<EOF
+$indexes
+EOF
+      [ "${#SELECTED_COMMAND_DIRS[@]}" -gt 0 ] && return 0
+    fi
+
+    log_warn "Enter all, bucket shortcuts like b2, command numbers, or ranges."
+  done
+}
+
 print_plan() {
   local scope="$1"
-  local cli_id target skill_dir
+  local cli_id target skill_dir command_dir
 
   echo ""
   log_section "Install Plan"
   echo "  Scope:  $scope"
   [ "$scope" = "project" ] && echo "  Project: $PROJECT_ROOT"
   echo ""
-  echo "  CLIs:"
-  for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-    target="$(cli_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
-    echo "  - $cli_id -> $target"
-  done
-  echo ""
-  echo "  Skills:"
-  for skill_dir in "${SELECTED_SKILL_DIRS[@]}"; do
-    echo "  - $(skill_name_from_dir "$skill_dir")"
-  done
-  echo ""
+
+  if [ "$INSTALL_SKILLS" -eq 1 ]; then
+    echo "  Skill targets:"
+    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
+      target="$(cli_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
+      echo "  - $cli_id -> $target"
+    done
+    echo ""
+    echo "  Skills:"
+    for skill_dir in "${SELECTED_SKILL_DIRS[@]}"; do
+      echo "  - $(skill_name_from_dir "$skill_dir")"
+    done
+    echo ""
+  fi
+
+  if [ "$INSTALL_COMMANDS" -eq 1 ]; then
+    echo "  Slash command targets:"
+    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
+      target="$(command_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
+      echo "  - $cli_id -> $target"
+    done
+    echo ""
+    echo "  Slash commands:"
+    for command_dir in "${SELECTED_COMMAND_DIRS[@]}"; do
+      echo "  - /$(command_name_from_dir "$command_dir")"
+    done
+    echo ""
+  fi
 }
 
 inject_global_shared_refs() {
@@ -481,6 +656,70 @@ write_skill_marker() {
 JSON
 }
 
+extract_command_description() {
+  local command_file="$1"
+
+  awk '
+    NR == 1 && $0 == "---" { in_fm = 1; next }
+    in_fm && $0 == "---" { exit }
+    in_fm && $0 ~ /^description:[[:space:]]*/ {
+      sub(/^description:[[:space:]]*/, "")
+      gsub(/^"/, "")
+      gsub(/"$/, "")
+      print
+      exit
+    }
+  ' "$command_file"
+}
+
+write_command_marker() {
+  local marker_path="$1"
+  local command_name="$2"
+  local cli_id="$3"
+  local scope="$4"
+  local source_path="$5"
+  local target_path="$6"
+  local installed_at
+
+  installed_at="$(timestamp_utc)"
+  cat > "$marker_path" <<JSON
+{
+  "installer": "agent-skills",
+  "installer_version": "$INSTALLER_VERSION",
+  "source_repo": "$(json_escape "$REPO_ROOT")",
+  "source_command": "$(json_escape "$source_path")",
+  "command": "$(json_escape "$command_name")",
+  "cli": "$(json_escape "$cli_id")",
+  "scope": "$scope",
+  "target": "$(json_escape "$target_path")",
+  "installed_at": "$installed_at"
+}
+JSON
+}
+
+write_gemini_command_toml() {
+  local command_file="$1"
+  local target="$2"
+  local description="$3"
+
+  if grep -q "'''" "$command_file"; then
+    log_warn "Skipping Gemini command with unsupported TOML literal delimiter: $command_file"
+    skipped=$((skipped + 1))
+    return 1
+  fi
+
+  {
+    printf 'description = "%s"\n' "$(json_escape "$description")"
+    printf "prompt = '''\n"
+    awk '
+      NR == 1 && $0 == "---" { in_fm = 1; next }
+      in_fm && $0 == "---" { in_fm = 0; next }
+      !in_fm { print }
+    ' "$command_file"
+    printf "\n'''\n"
+  } > "$target"
+}
+
 install_global_skill() {
   local cli_id="$1"
   local skill_dir="$2"
@@ -552,9 +791,125 @@ install_project_skill() {
   log_success "Copied $cli_id: $target"
 }
 
+install_global_command() {
+  local cli_id="$1"
+  local command_dir="$2"
+  local command_name command_file target_dir target marker_path description
+
+  command_name="$(command_name_from_dir "$command_dir")"
+  command_file="$command_dir/command.md"
+  target_dir="$(command_target_dir "$cli_id" "global" "")"
+  target="$target_dir/$command_name"
+  description="$(extract_command_description "$command_file")"
+  [ -n "$description" ] || description="Run /$command_name."
+
+  mkdir -p "$target_dir"
+  chmod 700 "$target_dir"
+
+  case "$cli_id" in
+    gemini)
+      target="$target.toml"
+      marker_path="${target%.*}$MARKER_FILE"
+      if [ -L "$target" ]; then
+        rm "$target"
+        replaced=$((replaced + 1))
+      elif [ -e "$target" ] && [ -f "$marker_path" ]; then
+        rm -f "$target" "$marker_path"
+        replaced=$((replaced + 1))
+      elif [ -e "$target" ]; then
+        log_warn "Skipping $target — exists and is not a symlink"
+        skipped=$((skipped + 1))
+        return 0
+      fi
+      write_gemini_command_toml "$command_file" "$target" "$description" || return 0
+      write_command_marker "$marker_path" "$command_name" "$cli_id" "global" "$command_file" "$target"
+      ;;
+    *)
+      target="$target.md"
+      if [ -L "$target" ]; then
+        rm "$target"
+        replaced=$((replaced + 1))
+      elif [ -e "$target" ]; then
+        log_warn "Skipping $target — exists and is not a symlink"
+        skipped=$((skipped + 1))
+        return 0
+      fi
+      ln -s "$command_file" "$target"
+      ;;
+  esac
+
+  created=$((created + 1))
+  log_success "Installed $cli_id command: $target"
+}
+
+project_command_target_owned() {
+  local target="$1"
+  local marker_path
+
+  if [ -d "$target" ]; then
+    [ -f "$target/$MARKER_FILE" ] && return 0
+  fi
+
+  marker_path="${target%.*}$MARKER_FILE"
+  [ -f "$marker_path" ]
+}
+
+install_project_command() {
+  local cli_id="$1"
+  local command_dir="$2"
+  local command_name command_file target_dir target marker_path description
+
+  command_name="$(command_name_from_dir "$command_dir")"
+  command_file="$command_dir/command.md"
+  target_dir="$(command_target_dir "$cli_id" "project" "$PROJECT_ROOT")"
+  target="$target_dir/$command_name"
+  description="$(extract_command_description "$command_file")"
+  [ -n "$description" ] || description="Run /$command_name."
+
+  mkdir -p "$target_dir"
+
+  case "$cli_id" in
+    gemini) target="$target.toml" ;;
+    *)      target="$target.md" ;;
+  esac
+
+  marker_path="${target%.*}$MARKER_FILE"
+
+  if [ -L "$target" ]; then
+    rm "$target"
+    replaced=$((replaced + 1))
+  elif [ -e "$target" ]; then
+    if project_command_target_owned "$target"; then
+      if confirm "Replace existing installer-owned command $target? [y/N]: "; then
+        rm -f "$target" "$marker_path"
+        replaced=$((replaced + 1))
+      else
+        log_warn "Skipping $target"
+        skipped=$((skipped + 1))
+        return 0
+      fi
+    else
+      log_warn "Skipping $target — exists and is not installer-owned"
+      skipped=$((skipped + 1))
+      return 0
+    fi
+  fi
+
+  if [ "$cli_id" = "gemini" ]; then
+    write_gemini_command_toml "$command_file" "$target" "$description" || return 0
+  else
+    cp "$command_file" "$target"
+  fi
+
+  write_command_marker "$marker_path" "$command_name" "$cli_id" "project" "$command_file" "$target"
+  created=$((created + 1))
+  PROJECT_TARGETS+=("$cli_id|command:$command_name|$target")
+  log_success "Copied $cli_id command: $target"
+}
+
 write_project_manifest() {
   local manifest_path="$PROJECT_ROOT/$PROJECT_MANIFEST"
-  local installed_at target_count index cli_id skill_name target comma
+  local installed_at target_count index cli_id item_name target comma item_type
 
   installed_at="$(timestamp_utc)"
   target_count="${#PROJECT_TARGETS[@]}"
@@ -572,12 +927,19 @@ write_project_manifest() {
     index=0
     for entry in "${PROJECT_TARGETS[@]}"; do
       cli_id="${entry%%|*}"
-      skill_name="${entry#*|}"
-      skill_name="${skill_name%%|*}"
+      item_name="${entry#*|}"
+      item_name="${item_name%%|*}"
       target="${entry##*|}"
+      item_type="skill"
+      case "$item_name" in
+        command:*)
+          item_type="command"
+          item_name="${item_name#command:}"
+          ;;
+      esac
       comma=","
       [ "$index" -eq $((target_count - 1)) ] && comma=""
-      echo "    {\"cli\": \"$(json_escape "$cli_id")\", \"skill\": \"$(json_escape "$skill_name")\", \"target\": \"$(json_escape "$target")\"}$comma"
+      echo "    {\"cli\": \"$(json_escape "$cli_id")\", \"type\": \"$(json_escape "$item_type")\", \"name\": \"$(json_escape "$item_name")\", \"target\": \"$(json_escape "$target")\"}$comma"
       index=$((index + 1))
     done
 
@@ -588,24 +950,38 @@ write_project_manifest() {
 
 run_install() {
   local scope="$1"
-  local cli_id skill_dir extension_dir
+  local cli_id skill_dir command_dir extension_dir
 
-  for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-    if [ "$cli_id" = "gemini" ]; then
-      extension_dir="$(gemini_extension_dir_for_scope "$scope" "$PROJECT_ROOT")"
-      write_gemini_extension_json "$extension_dir"
-    fi
-  done
-
-  for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-    for skill_dir in "${SELECTED_SKILL_DIRS[@]}"; do
-      if [ "$scope" = "global" ]; then
-        install_global_skill "$cli_id" "$skill_dir"
-      else
-        install_project_skill "$cli_id" "$skill_dir"
+  if [ "$INSTALL_SKILLS" -eq 1 ]; then
+    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
+      if [ "$cli_id" = "gemini" ]; then
+        extension_dir="$(gemini_extension_dir_for_scope "$scope" "$PROJECT_ROOT")"
+        write_gemini_extension_json "$extension_dir"
       fi
     done
-  done
+
+    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
+      for skill_dir in "${SELECTED_SKILL_DIRS[@]}"; do
+        if [ "$scope" = "global" ]; then
+          install_global_skill "$cli_id" "$skill_dir"
+        else
+          install_project_skill "$cli_id" "$skill_dir"
+        fi
+      done
+    done
+  fi
+
+  if [ "$INSTALL_COMMANDS" -eq 1 ]; then
+    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
+      for command_dir in "${SELECTED_COMMAND_DIRS[@]}"; do
+        if [ "$scope" = "global" ]; then
+          install_global_command "$cli_id" "$command_dir"
+        else
+          install_project_command "$cli_id" "$command_dir"
+        fi
+      done
+    done
+  fi
 
   if [ "$scope" = "project" ]; then
     write_project_manifest
@@ -617,17 +993,20 @@ main() {
 
   echo ""
   echo "╔══════════════════════════════════════╗"
-  echo "║        Skills Install Script         ║"
+  echo "║        Agent Content Installer       ║"
   echo "╚══════════════════════════════════════╝"
   echo ""
-  echo "  Repo:   $REPO_ROOT"
-  echo "  Skills: $SKILLS_DIR"
+  echo "  Repo:     $REPO_ROOT"
+  echo "  Skills:   $SKILLS_DIR"
+  echo "  Commands: $COMMANDS_DIR"
 
+  select_content
   select_clis
   select_scope
   scope="$SELECTED_SCOPE"
   [ "$scope" = "project" ] && select_project_root
-  select_skills
+  [ "$INSTALL_SKILLS" -eq 1 ] && select_skills
+  [ "$INSTALL_COMMANDS" -eq 1 ] && select_commands
   print_plan "$scope"
 
   if ! confirm "Proceed with install? [y/N]: "; then
@@ -641,8 +1020,8 @@ main() {
   echo ""
   echo "────────────────────────────────────────"
   log_info "Done — $created installed, $replaced replaced, $skipped skipped"
-  [ "$scope" = "global" ] && log_info "Shared refs linked — $shared_linked"
-  [ "$scope" = "project" ] && log_info "Shared refs copied — $shared_copied"
+  [ "$scope" = "global" ] && [ "$INSTALL_SKILLS" -eq 1 ] && log_info "Shared refs linked — $shared_linked"
+  [ "$scope" = "project" ] && [ "$INSTALL_SKILLS" -eq 1 ] && log_info "Shared refs copied — $shared_copied"
   [ "$scope" = "project" ] && log_info "Manifest: $PROJECT_ROOT/$PROJECT_MANIFEST"
   echo ""
 }
