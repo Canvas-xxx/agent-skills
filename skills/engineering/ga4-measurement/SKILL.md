@@ -19,6 +19,11 @@ Use a general debugging skill when the problem is not analytics-specific. Use a 
 
 Do not invent business goals or activation definitions when the user or project artifacts provide them. If goals are missing, state assumptions before proposing events.
 
+## Artifacts
+
+- Produces: `.context/analytics.md` (on request)
+- Consumes: `.context/project.md`, `.context/analytics.md`, `.context/engineering.md`
+
 ## Core Rule
 
 Track decisions, not clicks. Every event must answer a real question someone will use to make a product, growth, reliability, or revenue decision.

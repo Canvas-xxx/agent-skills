@@ -20,6 +20,11 @@ Use `debug-mantra` first when the cause is still uncertain. Use `management-talk
 - The event is a customer-visible incident that needs a timeline, blast radius, paging history, and communications record.
 - The change is a trivial typo or obvious one-liner; a PR note is enough.
 
+## Artifacts
+
+- Produces: `docs/postmortems/<topic>.md`
+- Consumes: `.context/debug-ledger.md` (if present), `.context/project.md`, `.context/post-mortem.md`, `.context/learning.md`, `.context/adr/`
+
 ## Required Inputs
 
 Confirm these before drafting. If any are missing, list the gap and stop.

@@ -20,6 +20,11 @@ Use a narrower skill when the request is mainly generic debugging, security
 audit, TDD process, stakeholder writing, or a framework-specific workflow where
 Python design judgment is only incidental.
 
+## Artifacts
+
+- Produces: code changes
+- Consumes: `tasks/stories.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/git-workflow.md`, `.context/security.md`, `.context/learning.md`
+
 ## Core Rule
 
 Prefer the repository's existing package manager, layout, formatter, linter,

@@ -14,6 +14,11 @@ Use this skill when the user wants to create, write, build, draft, review, or im
 
 If the user is asking to install an existing skill, use a skill installation workflow instead. If they are asking for a one-off prompt or instruction block that will not become a reusable skill, keep the output lightweight and do not force the full structure.
 
+## Artifacts
+
+- Produces: `skills/<bucket>/<name>/SKILL.md`
+- Consumes: nothing
+
 ## Core Rule
 
 Optimize for a skill another agent can load quickly and apply correctly. Keep trigger metadata short, keep the main workflow in `SKILL.md`, and move detailed or rarely needed material into bundled resources with clear pointers.

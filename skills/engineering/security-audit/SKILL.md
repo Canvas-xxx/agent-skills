@@ -13,6 +13,11 @@ Use this skill for security code review, API security review, auth and authoriza
 
 Use a general code-review skill when the request is mostly about correctness, maintainability, or performance. Use a debugging workflow when the user needs to reproduce and fix a functional bug before assessing security impact.
 
+## Artifacts
+
+- Produces: `.context/security-findings.md` (on request)
+- Consumes: `.context/project.md`, `.context/security.md`, `.context/engineering.md`, `.context/adr/`
+
 ## Core Rule
 
 Every finding must be grounded in evidence and must explain trust boundary, exploitability, blast radius, business impact, and the specific fix.

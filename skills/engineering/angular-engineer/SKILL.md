@@ -13,6 +13,11 @@ Use this skill for Angular application work: components, services, routes, guard
 
 Use a narrower skill when the request is mainly about generic debugging, security review, analytics, TDD workflow, or stakeholder communication and Angular is only incidental.
 
+## Artifacts
+
+- Produces: code changes
+- Consumes: `tasks/stories.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/git-workflow.md`, `.context/security.md`, `.context/learning.md`, `.context/adr/`
+
 ## Core Rule
 
 Prefer the project’s existing Angular version, module style, shared components, design tokens, HTTP layer, state pattern, and test runner over generic Angular examples.

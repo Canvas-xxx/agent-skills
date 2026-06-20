@@ -16,6 +16,11 @@ Use `management-talk` instead when the request is mainly rewriting engineering o
 
 When both apply, use this skill first to decide the audience, message, risk framing, and update structure.
 
+## Artifacts
+
+- Produces: communication artifact (chat or doc, channel-dependent)
+- Consumes: `docs/prd.md` (if present), `.context/project.md`, `.context/INDEX.md`
+
 ## Core Rule
 
 Identify the audience and the update's purpose before drafting. The same facts need different framing, detail, and risk language depending on who needs to act.

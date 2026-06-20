@@ -19,6 +19,11 @@ Use `diagnose` for heavier investigations: hard bugs, performance regressions, f
 - The root cause and validated fix are already known. Implement or document instead.
 - The user asks for pure test-first development of new behavior. Use `tdd`.
 
+## Artifacts
+
+- Produces: `.context/debug-ledger.md` (on request)
+- Consumes: `.context/project.md`, `.context/engineering.md`
+
 ## Required Mantra
 
 Recite once at the start of the first debugging response unless the user says to skip it:

@@ -21,6 +21,11 @@ Use it for audiences such as managers, directors, VPs, PMs, TPMs, release manage
 - Use `post-mortem` when the user needs the full incident or bug writeup first; use this skill afterward for the leadership-facing version.
 - Do not make the copy customer-facing, marketing-oriented, legal, finance, or true ELI5 unless the user asks for that audience explicitly.
 
+## Artifacts
+
+- Produces: communication artifact (chat or `.context/management-update.md` on request)
+- Consumes: technical source material, `docs/postmortems/<topic>.md` (if present), `.context/project.md`
+
 ## Core Rule
 
 Preserve state, impact, owner, next step, validation, risk, workaround, and tracking references. Strip implementation detail unless it is needed to explain consequence or decision.

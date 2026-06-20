@@ -13,6 +13,11 @@ Use this skill when the user asks for TDD, red-green-refactor, regression tests 
 
 Use `debug-mantra` first when the failure mechanism is unknown. Use `scrutinize` for review-only work where no implementation is requested.
 
+## Artifacts
+
+- Produces: tests + implementation
+- Consumes: `tasks/stories.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/learning.md`, `.context/adr/`
+
 ## Core Rule
 
 Tests should describe what callers or users observe through public interfaces. Avoid locking tests to private methods, incidental structure, or implementation order.

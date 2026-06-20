@@ -13,6 +13,11 @@ Use this skill for Strapi application work: content-type schemas, API controller
 
 Use a narrower skill instead when the request is mainly generic TypeScript, frontend Angular, security auditing, analytics, or a non-Strapi backend.
 
+## Artifacts
+
+- Produces: code changes
+- Consumes: `tasks/stories.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/git-workflow.md`, `.context/security.md`, `.context/learning.md`, `.context/adr/`
+
 ## Core Rule
 
 Choose the Strapi layer that matches the responsibility, keep controllers thin, put business logic in services, and validate behavior with tests or explicit runtime checks.

@@ -18,6 +18,11 @@ Good inputs include rough notes, PRDs, research findings, bugs, design decisions
 
 Do not use this skill for narrative fiction, brand storytelling, stakeholder updates, status reports, leadership rewrites, full product specs, or one-off implementation plans unless the requested output is a backlog item.
 
+## Artifacts
+
+- Produces: `tasks/stories.md`
+- Consumes: `docs/prd.md` (if present), `.context/project.md`, `.context/triage.md`
+
 ## Core Rule
 
 Optimize for handoff quality. A good backlog item tells the next assignee what outcome is needed, why it matters, how done will be judged, and what constraints or unknowns need attention.

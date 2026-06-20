@@ -13,6 +13,11 @@ Use this skill for review requests: plans, PRs, diffs, design docs, architecture
 
 Use `debug-mantra` instead for live bug investigation. Use `grill-me` when the user wants an interactive interview to shape an unclear goal before review.
 
+## Artifacts
+
+- Produces: `.context/scrutiny.md` (on request)
+- Consumes: artifact under review (plan, PR, diff, or design doc)
+
 ## Core Rule
 
 Find the shortest defensible path from intent to evidence. Separate what the artifact claims from what you verified.

@@ -17,6 +17,11 @@ Do not use this skill for options modeling, discretionary trade calls, portfolio
 
 For live trading, keep the work to readiness assessment and engineering design unless the user supplies concrete execution requirements and infrastructure details. Do not claim a strategy is safe, profitable, or ready for real capital solely from a backtest.
 
+## Artifacts
+
+- Produces: strategy spec, backtest code
+- Consumes: `.context/project.md`, `.context/engineering.md`
+
 ## Core Rule
 
 Treat every strategy as untrusted until the rules, data, execution model, costs, risk controls, and validation design are explicit enough to falsify.

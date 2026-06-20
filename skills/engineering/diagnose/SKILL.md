@@ -20,6 +20,11 @@ Use `debug-mantra` for lighter active debugging when the user needs a compact di
 - The user asks for pure test-first development of new behavior. Use `tdd`.
 - The request is a simple known-error lookup or one-command fix where a full investigation loop would add noise.
 
+## Artifacts
+
+- Produces: `.context/debug-ledger.md`, fix + regression test
+- Consumes: `.context/debug-ledger.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/post-mortem.md`, `.context/learning.md`
+
 ## Core Rule
 
 Build a fast, deterministic, agent-runnable pass/fail signal before chasing causes. If you cannot build a credible loop, stop, state what you tried, and ask for the missing artifact or environment access.

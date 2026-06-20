@@ -20,6 +20,11 @@ Use this skill when the user wants to triage issues, review incoming bugs or fea
 
 Use `write-a-story` when the user wants backlog drafting without tracker state management. Use `grill-me` when the main task is an interview, and call it as a subroutine only when a triage issue needs more shaping. Use a debugging skill when the user asks to fully investigate and fix a bug rather than classify it.
 
+## Artifacts
+
+- Produces: tracker state (labels, comments, status via connected tool)
+- Consumes: `tasks/stories.md` (if present), `.context/triage.md`, `.context/project.md`, `.context/git-workflow.md`
+
 ## Core Rule
 
 Inspect and recommend freely. Before changing labels, statuses, fields, comments, descriptions, assignees, or closure state in an external tracker, show the exact intended mutation and get explicit maintainer approval.

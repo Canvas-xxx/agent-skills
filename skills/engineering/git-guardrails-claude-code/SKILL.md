@@ -13,6 +13,11 @@ Use this skill when the user wants Claude Code git safety hooks, local project g
 
 This skill installs Claude Code hooks only. For ordinary repository policy, server-side git hooks, GitHub branch protection, or CI rules, provide separate guidance.
 
+## Artifacts
+
+- Produces: `.claude/settings.json` (hook entries merged in)
+- Consumes: nothing
+
 ## Core Rule
 
 Preserve existing Claude settings. Merge hook entries; never overwrite unrelated settings, hooks, or user scripts.

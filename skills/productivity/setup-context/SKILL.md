@@ -14,6 +14,11 @@ Run once per project before first use of `angular-engineer`, `python-engineer`, 
 
 Do not use to update domain content — edit `.context/*.md` files directly instead.
 
+## Artifacts
+
+- Produces: `.context/INDEX.md`, `.context/<domain>.md`
+- Consumes: repo files for stack detection (`package.json`, `angular.json`, `pyproject.toml`, `git remote`)
+
 ## Core Rule
 
 Explore first, ask second, write last. Never scaffold a domain file the user has not explicitly confirmed.

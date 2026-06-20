@@ -20,6 +20,11 @@ Do not use this skill for backlog-only work, status updates, stakeholder summari
 
 Do not publish to any external issue tracker unless a compatible tool is available and the user explicitly approves the exact payload.
 
+## Artifacts
+
+- Produces: `docs/prd.md`
+- Consumes: `docs/goals.md` (if present), `.context/project.md`, `.context/engineering.md`, `.context/adr/`
+
 ## Core Rule
 
 Synthesize without interviewing by default. Use the current conversation, repository evidence, domain vocabulary, ADRs, and known constraints; label unknowns instead of inventing facts.

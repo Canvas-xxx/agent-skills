@@ -13,6 +13,11 @@ Use this skill when the user wants to be grilled, stress-test a plan, sharpen a 
 
 Use `scrutinize` when the user wants findings on an already written plan, PR, or design doc. Use an implementation skill when the user asks for direct changes instead of an interview.
 
+## Artifacts
+
+- Produces: `docs/goals.md` (on request)
+- Consumes: `.context/project.md`
+
 ## Core Rule
 
 Resolve upstream decisions before downstream details. Ask one question at a time, and offer a recommended answer when evidence supports one.
