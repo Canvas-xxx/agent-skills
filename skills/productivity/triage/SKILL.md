@@ -1,12 +1,15 @@
 ---
 name: triage
 description: "Triage tracker issues through canonical category and state roles, maintainer review, and durable handoff notes. Use when classifying bugs or enhancements, reviewing incoming issues, preparing AFK-agent briefs, requesting reporter info, or managing issue workflow."
+disable-model-invocation: true
 argument-hint: "<issue, tracker query, or triage request>"
 ---
 
 # Triage
 
 Move tracker issues through a small, explicit triage state machine while preserving maintainer control over external changes.
+
+If this repo treats external pull requests as a request surface, triage covers them too: **a PR is an issue with attached code** — same roles, same states, same machine, with PR-specific deltas noted below. Resolve a bare `#42` to an issue or PR per the tracker config.
 
 Every comment or issue posted to a tracker during triage must start with:
 
@@ -18,7 +21,7 @@ Every comment or issue posted to a tracker during triage must start with:
 
 Use this skill when the user wants to triage issues, review incoming bugs or feature requests, classify tracker work, prepare an issue for an AFK agent, request reporter information, close out-of-scope requests, or move issues through a triage workflow.
 
-Use `write-a-story` when the user wants backlog drafting without tracker state management. Use `grill-me` when the main task is an interview, and call it as a subroutine only when a triage issue needs more shaping. Use a debugging skill when the user asks to fully investigate and fix a bug rather than classify it.
+Use `write-a-story` when the user wants backlog drafting without tracker state management. Use `grilling` when the main task is an interview, and call it as a subroutine only when a triage issue needs more shaping. Use a debugging skill when the user asks to fully investigate and fix a bug rather than classify it.
 
 ## Artifacts
 
@@ -46,6 +49,19 @@ State roles:
 
 Every triaged issue should carry exactly one category role and one state role. If state roles conflict, stop and ask the maintainer before changing anything.
 
+## State Transitions
+
+```
+unlabeled → needs-triage → needs-info ⟵→ needs-triage
+                         → ready-for-agent
+                         → ready-for-human
+                         → wontfix
+```
+
+An unlabeled issue normally goes to `needs-triage` first. `needs-info` returns to `needs-triage` once the reporter replies. The maintainer can override at any time — flag transitions that look unusual and ask before proceeding.
+
+For a PR, the same states read against the attached code: `ready-for-agent` means a brief is attached and an agent should act on the diff; `ready-for-human` means it's ready for a human to merge.
+
 ## Tracker Mapping
 
 Treat the roles above as canonical concepts, not literal tracker labels. First look for `.context/INDEX.md` and `.context/triage.md`, then project-local mapping such as `.triage/roles.md`, `.triage/config.md`, or equivalent repository documentation. If no mapping exists, inspect existing tracker labels/statuses/fields and ask the maintainer to confirm the mapping before mutation.
@@ -60,13 +76,13 @@ Adapt to available tracker tools:
 ## Workflow
 
 1. Interpret the maintainer request: show attention queue, triage a specific issue, perform a quick state override, or list issues in a state.
-2. Gather context. Read the issue body, comments, current roles, reporter, dates, and prior triage notes. Check `.context/INDEX.md`, `.context/project.md`, `.context/git-workflow.md`, `.context/triage.md`, project docs, relevant code paths, ADRs, and `.out-of-scope/*.md` when present.
+2. Gather context. Read the issue body, comments, current roles, reporter, dates, and prior triage notes. Check `.context/INDEX.md`, `.context/project.md`, `.context/git-workflow.md`, `.context/triage.md`, project docs, relevant code paths, ADRs, and `.out-of-scope/*.md` when present. Run two checks: (a) **redundancy** — search for an existing implementation of the requested behavior by domain concept, not just the request's wording, and report where you looked; if found, it is an already-implemented `wontfix` (step 6). (b) **prior rejection** — read `.out-of-scope/*.md` and surface any file that resembles this request.
 3. Recommend category and state with reasoning, a brief codebase or tracker-context summary, and any mapping uncertainty. Wait for maintainer direction before mutation.
-4. For bugs, attempt lightweight reproduction before grilling: follow reporter steps, trace the likely code path, and run targeted commands when reasonable. Report confirmed repro, failed repro, or insufficient detail.
-5. If the issue needs shaping, run a focused `grill-me` session. Preserve resolved facts in the final triage notes or brief.
+4. For bugs, attempt lightweight reproduction before grilling: follow reporter steps, trace the likely code path, and run targeted commands when reasonable. Report confirmed repro, failed repro, or insufficient detail. For a PR, confirm the diff does what it claims — check it out, run relevant tests or commands.
+5. If the issue needs shaping, run `grilling` and `domain-modeling` together — grill it into shape one question at a time, sharpening domain terms and updating `CONTEXT.md`/ADRs inline as decisions land. Preserve resolved facts in the final triage notes or brief.
 6. Apply the approved outcome using available tracker tools, preserving the disclaimer on every posted tracker comment.
 
-When showing the attention queue, present counts and one-line summaries oldest first for unlabeled issues, `needs-triage` issues, and `needs-info` issues with reporter activity since the last triage notes. Let the maintainer pick. For quick state overrides, trust the maintainer, show the exact planned mutation, and skip grilling.
+When showing the attention queue, present counts and one-line summaries oldest first for unlabeled issues, `needs-triage` issues, and `needs-info` issues with reporter activity since the last triage notes. When PRs are in scope, include external PRs and tag each line `[PR]` or `[issue]`. Discovery surfaces only external PRs — a collaborator's in-flight PR is not triage work. Let the maintainer pick. For quick state overrides, trust the maintainer, show the exact planned mutation, and skip grilling.
 
 ## Outcomes
 
@@ -74,8 +90,13 @@ When showing the attention queue, present counts and one-line summaries oldest f
 - `ready-for-human`: use the same brief structure, and explain why it needs human judgment, access, design approval, or manual testing.
 - `needs-info`: post triage notes with established facts and specific reporter questions.
 - `wontfix` bug: post a polite explanation and close or resolve the issue.
-- `wontfix` enhancement: update `.out-of-scope/` using `references/out-of-scope.md`, link the record from the tracker comment, then close or resolve.
+- `wontfix` enhancement (rejected): update `.out-of-scope/` using `references/out-of-scope.md`, link the record from the tracker comment, then close or resolve.
+- `wontfix` enhancement (already implemented): point to where it lives in the codebase; do not write to `.out-of-scope/` (that KB is for rejected requests, not built ones).
 - `needs-triage`: apply the mapped role, with an optional progress comment if partial investigation was useful.
+
+## Resuming a Previous Session
+
+If prior triage notes exist on the issue or PR, read them, check whether the reporter has answered any outstanding questions, and present an updated picture before continuing. Do not re-ask resolved questions.
 
 ## Reference Map
 
