@@ -33,23 +33,18 @@ read_prompt() {
   printf -v "$var_name" '%s' "$prompt_answer"
 }
 
-echo ""
-echo "╔══════════════════════════════════════╗"
-echo "║           blvck-skills               ║"
-echo "╚══════════════════════════════════════╝"
-echo ""
-echo "  Repo: $REPO_ROOT"
-echo ""
-echo "  1) Install skills / slash commands"
-echo "  2) Uninstall skills / slash commands"
+printf "\n${BOLD}${CYAN}  blvck-skills${NC}\n"
+printf "  ${GRAY}%s${NC}\n\n" "$REPO_ROOT"
+printf "  ${BOLD}1)${NC}  Install\n"
+printf "  ${BOLD}2)${NC}  Uninstall\n"
 echo ""
 
 while true; do
-  read_prompt answer "Choose an action [1]: "
+  read_prompt answer "  Action [1]: "
   [ -n "$answer" ] || answer="1"
   case "$answer" in
     1|install)   exec "$script_dir/install-skills.sh" ;;
     2|uninstall) exec "$script_dir/uninstall-skills.sh" ;;
-    *) echo "  Enter 1 to install or 2 to uninstall." ;;
+    *) printf "  ${YELLOW}⚠${NC}  Enter 1 or 2.\n" ;;
   esac
 done

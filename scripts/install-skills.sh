@@ -300,29 +300,22 @@ select_scope() {
 }
 
 select_project_root() {
-  local default_root answer resolved
+  local default_root answer
 
   default_root="$(pwd -P)"
-  echo ""
-  log_section "Choose Project"
-  echo "  Default: $default_root"
-  echo ""
+  log_section "Project Path"
 
   while true; do
-    read_prompt answer "Project path [current directory]: "
+    read_prompt answer "  Path [${default_root}]: "
     [ -n "$answer" ] || answer="$default_root"
 
-    if [ ! -d "$answer" ]; then
-      log_warn "Directory does not exist: $answer"
-      continue
-    fi
-
-    resolved="$(absolute_path "$answer")"
-    echo "  Project: $resolved"
-    if confirm "Use this project path? [y/N]: "; then
-      PROJECT_ROOT="$resolved"
+    if [ -d "$answer" ]; then
+      PROJECT_ROOT="$(absolute_path "$answer")"
+      log_info "Project → $PROJECT_ROOT"
       return 0
     fi
+
+    log_warn "Directory not found: $answer"
   done
 }
 
@@ -527,37 +520,26 @@ print_plan() {
   local scope="$1"
   local cli_id target skill_dir command_dir
 
-  echo ""
-  log_section "Install Plan"
-  echo "  Scope:    $scope"
-  [ -n "$SELECTED_SCENARIO" ] && [ "$SELECTED_SCENARIO" != "custom" ] && echo "  Preset:   $SELECTED_SCENARIO"
-  [ "$scope" = "project" ] && echo "  Project:  $PROJECT_ROOT"
+  log_section "Plan"
+  printf "  ${GRAY}scope${NC}    %s\n" "$scope"
+  [ -n "$SELECTED_SCENARIO" ] && [ "$SELECTED_SCENARIO" != "custom" ] && \
+    printf "  ${GRAY}preset${NC}   %s\n" "$SELECTED_SCENARIO"
+  [ "$scope" = "project" ] && printf "  ${GRAY}project${NC}  %s\n" "$PROJECT_ROOT"
+  printf "  ${GRAY}cli${NC}      %s\n" "${SELECTED_CLI_IDS[*]}"
   echo ""
 
-  if [ "$INSTALL_SKILLS" -eq 1 ]; then
-    echo "  Skill targets:"
-    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-      target="$(cli_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
-      echo "  - $cli_id -> $target"
-    done
-    echo ""
-    echo "  Skills:"
+  if [ "$INSTALL_SKILLS" -eq 1 ] && [ "${#SELECTED_SKILL_DIRS[@]}" -gt 0 ]; then
+    printf "  ${BOLD}skills${NC}  (${#SELECTED_SKILL_DIRS[@]})\n"
     for skill_dir in "${SELECTED_SKILL_DIRS[@]}"; do
-      echo "  - $(skill_name_from_dir "$skill_dir")"
+      printf "  ${GRAY}·${NC}  %s\n" "$(skill_name_from_dir "$skill_dir")"
     done
     echo ""
   fi
 
-  if [ "$INSTALL_COMMANDS" -eq 1 ]; then
-    echo "  Slash command targets:"
-    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-      target="$(command_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
-      echo "  - $cli_id -> $target"
-    done
-    echo ""
-    echo "  Slash commands:"
+  if [ "$INSTALL_COMMANDS" -eq 1 ] && [ "${#SELECTED_COMMAND_DIRS[@]}" -gt 0 ]; then
+    printf "  ${BOLD}commands${NC}  (${#SELECTED_COMMAND_DIRS[@]})\n"
     for command_dir in "${SELECTED_COMMAND_DIRS[@]}"; do
-      echo "  - /$(command_name_from_dir "$command_dir")"
+      printf "  ${GRAY}·${NC}  /%s\n" "$(command_name_from_dir "$command_dir")"
     done
     echo ""
   fi
@@ -991,32 +973,23 @@ run_install() {
 }
 
 select_scenario() {
-  local answer index
-  local names=(
-    "Global — core skills, symlinked into every project"
-    "Project — PM / non-coder workspace (productivity skills only)"
-    "Project — Software development (all skills)"
-    "Custom — choose scope and skills manually"
-  )
-
-  echo ""
+  local answer
   log_section "Choose Scenario"
-  index=1
-  while [ "$index" -le "${#names[@]}" ]; do
-    printf '  %s) %s\n' "$index" "${names[$((index - 1))]}"
-    index=$((index + 1))
-  done
+  printf "  ${BOLD}1)${NC}  Global          — 9 core skills, symlinked system-wide\n"
+  printf "  ${BOLD}2)${NC}  Project – PM    — 7 productivity skills (PM / non-coder)\n"
+  printf "  ${BOLD}3)${NC}  Project – Dev   — 11 engineering essentials\n"
+  printf "  ${BOLD}4)${NC}  Custom          — pick from all available skills\n"
   echo ""
 
   while true; do
-    read_prompt answer "Scenario? [1]: "
+    read_prompt answer "  Scenario [1]: "
     [ -n "$answer" ] || answer="1"
     case "$answer" in
       1) SELECTED_SCENARIO="global";      SELECTED_SCOPE="global";  return 0 ;;
       2) SELECTED_SCENARIO="project-pm";  SELECTED_SCOPE="project"; return 0 ;;
       3) SELECTED_SCENARIO="project-dev"; SELECTED_SCOPE="project"; return 0 ;;
       4) SELECTED_SCENARIO="custom";                                  return 0 ;;
-      *) log_warn "Enter 1-4." ;;
+      *) log_warn "Enter 1–4." ;;
     esac
   done
 }
@@ -1033,21 +1006,15 @@ select_skills_fzf() {
 
   local display=()
   while [ "$i" -lt "${#SKILL_NAMES[@]}" ]; do
-    display+=("$(printf '%-32s [%s]' "${SKILL_NAMES[$i]}" "${SKILL_BUCKETS[$i]}")")
+    display+=("$(printf '%-32s %s' "${SKILL_NAMES[$i]}" "${SKILL_BUCKETS[$i]}")")
     i=$((i + 1))
   done
 
-  echo ""
-  log_section "Choose Skills"
-  echo ""
-
   fzf_output=$(printf '%s\n' "${display[@]}" | \
     fzf --multi \
-        --header="Tab/Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
-        --bind="ctrl-a:select-all,ctrl-d:deselect-all" \
-        --height=60% \
-        --layout=reverse \
-        --prompt="Skills > " 2>/dev/null) || true
+        "${FZF_COMMON_ARGS[@]}" \
+        --header="Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
+        --prompt="  skills › " 2>/dev/null) || true
 
   if [ -z "$fzf_output" ]; then
     log_warn "No skills selected; cancelling."
@@ -1085,21 +1052,15 @@ select_commands_fzf() {
 
   local display=()
   while [ "$i" -lt "${#COMMAND_NAMES[@]}" ]; do
-    display+=("$(printf '%-32s [%s]' "${COMMAND_NAMES[$i]}" "${COMMAND_BUCKETS[$i]}")")
+    display+=("$(printf '%-32s %s' "${COMMAND_NAMES[$i]}" "${COMMAND_BUCKETS[$i]}")")
     i=$((i + 1))
   done
 
-  echo ""
-  log_section "Choose Slash Commands"
-  echo ""
-
   fzf_output=$(printf '%s\n' "${display[@]}" | \
     fzf --multi \
-        --header="Tab/Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
-        --bind="ctrl-a:select-all,ctrl-d:deselect-all" \
-        --height=60% \
-        --layout=reverse \
-        --prompt="Commands > " 2>/dev/null) || true
+        "${FZF_COMMON_ARGS[@]}" \
+        --header="Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
+        --prompt="  commands › " 2>/dev/null) || true
 
   if [ -z "$fzf_output" ]; then
     log_warn "No commands selected; cancelling."
@@ -1137,8 +1098,6 @@ populate_skills_from_preset() {
     log_warn "No skills found for preset '$preset'."
     exit 0
   fi
-
-  log_info "Preset '$preset' — ${#SELECTED_SKILL_DIRS[@]} skill(s) selected."
 }
 
 populate_commands_from_preset() {
@@ -1149,48 +1108,40 @@ populate_commands_from_preset() {
 main() {
   local scope
 
-  echo ""
-  echo "╔══════════════════════════════════════╗"
-  echo "║        Agent Content Installer       ║"
-  echo "╚══════════════════════════════════════╝"
-  echo ""
-  echo "  Repo:     $REPO_ROOT"
-  echo "  Skills:   $SKILLS_DIR"
-  echo "  Commands: $COMMANDS_DIR"
-  [ "$FZF_AVAILABLE" -eq 1 ] && log_info "fzf detected — checkbox selection available in custom mode"
+  printf "\n${BOLD}${CYAN}  blvck-skills${NC}${GRAY}  ·  install${NC}\n"
+  printf "  ${GRAY}%s${NC}\n\n" "$REPO_ROOT"
 
-  select_content
-  select_clis
+  # Preset installs go to Claude only; custom lets you choose scope + any CLI
+  SELECTED_CLI_IDS=("claude")
+  INSTALL_SKILLS=1
+  INSTALL_COMMANDS=1
+
   select_scenario
 
-  [ "$SELECTED_SCENARIO" = "custom" ] && select_scope
+  if [ "$SELECTED_SCENARIO" = "custom" ]; then
+    select_scope
+  fi
+
   scope="$SELECTED_SCOPE"
   [ "$scope" = "project" ] && select_project_root
 
   if [ "$SELECTED_SCENARIO" = "custom" ]; then
-    if [ "$INSTALL_SKILLS" -eq 1 ]; then
-      if [ "$FZF_AVAILABLE" -eq 1 ]; then
-        select_skills_fzf
-      else
-        select_skills
-      fi
-    fi
-    if [ "$INSTALL_COMMANDS" -eq 1 ]; then
-      if [ "$FZF_AVAILABLE" -eq 1 ]; then
-        select_commands_fzf
-      else
-        select_commands
-      fi
+    if [ "$FZF_AVAILABLE" -eq 1 ]; then
+      select_skills_fzf
+      select_commands_fzf
+    else
+      select_skills
+      select_commands
     fi
   else
-    [ "$INSTALL_SKILLS"   -eq 1 ] && populate_skills_from_preset "$SELECTED_SCENARIO"
-    [ "$INSTALL_COMMANDS" -eq 1 ] && populate_commands_from_preset
+    populate_skills_from_preset "$SELECTED_SCENARIO"
+    populate_commands_from_preset
   fi
 
   print_plan "$scope"
 
-  if ! confirm "Proceed with install? [y/N]: "; then
-    log_warn "Install cancelled."
+  if ! confirm "  Install? [y/N]: "; then
+    log_warn "Cancelled."
     exit 0
   fi
 
@@ -1198,11 +1149,11 @@ main() {
   run_install "$scope"
 
   echo ""
-  echo "────────────────────────────────────────"
-  log_info "Done — $created installed, $replaced replaced, $skipped skipped"
+  printf "  ${GRAY}────────────────────────────────────${NC}\n"
+  log_success "Done  $created installed  $replaced replaced  $skipped skipped"
   [ "$scope" = "global" ] && [ "$INSTALL_SKILLS" -eq 1 ] && log_info "Shared refs linked — $shared_linked"
   [ "$scope" = "project" ] && [ "$INSTALL_SKILLS" -eq 1 ] && log_info "Shared refs copied — $shared_copied"
-  [ "$scope" = "project" ] && log_info "Manifest: $PROJECT_ROOT/$PROJECT_MANIFEST"
+  [ "$scope" = "project" ] && log_info "Manifest → $PROJECT_ROOT/$PROJECT_MANIFEST"
   echo ""
 }
 

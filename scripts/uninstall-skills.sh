@@ -270,48 +270,39 @@ EOF
 
 select_scope() {
   local answer
-
-  echo ""
-  log_section "Choose Scope"
-  echo "  1) Global config symlinks"
-  echo "  2) Project-local copies"
+  log_section "Scope"
+  printf "  ${BOLD}1)${NC}  Global   — remove symlinks from ~/.claude\n"
+  printf "  ${BOLD}2)${NC}  Project  — remove copies from project dir\n"
   echo ""
 
   while true; do
-    read_prompt answer "Uninstall scope? [1]: "
+    read_prompt answer "  Scope [1]: "
     [ -n "$answer" ] || answer="1"
     case "$answer" in
-      1|global)  SELECTED_SCOPE="global"; return 0 ;;
+      1|global)  SELECTED_SCOPE="global";  return 0 ;;
       2|project) SELECTED_SCOPE="project"; return 0 ;;
-      *) log_warn "Enter 1 for global or 2 for project." ;;
+      *) log_warn "Enter 1 or 2." ;;
     esac
   done
 }
 
 select_project_root() {
-  local default_root answer resolved
+  local default_root answer
 
   default_root="$(pwd -P)"
-  echo ""
-  log_section "Choose Project"
-  echo "  Default: $default_root"
-  echo ""
+  log_section "Project Path"
 
   while true; do
-    read_prompt answer "Project path [current directory]: "
+    read_prompt answer "  Path [${default_root}]: "
     [ -n "$answer" ] || answer="$default_root"
 
-    if [ ! -d "$answer" ]; then
-      log_warn "Directory does not exist: $answer"
-      continue
-    fi
-
-    resolved="$(absolute_path "$answer")"
-    echo "  Project: $resolved"
-    if confirm "Use this project path? [y/N]: "; then
-      PROJECT_ROOT="$resolved"
+    if [ -d "$answer" ]; then
+      PROJECT_ROOT="$(absolute_path "$answer")"
+      log_info "Project → $PROJECT_ROOT"
       return 0
     fi
+
+    log_warn "Directory not found: $answer"
   done
 }
 
@@ -337,11 +328,9 @@ select_skills_to_remove() {
     local fzf_output
     fzf_output=$(printf '%s\n' "${AVAIL_NAMES[@]}" | \
       fzf --multi \
-          --header="Tab/Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
-          --bind="ctrl-a:select-all,ctrl-d:deselect-all" \
-          --height=60% \
-          --layout=reverse \
-          --prompt="Remove skills > " 2>/dev/null) || true
+          "${FZF_COMMON_ARGS[@]}" \
+          --header="Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
+          --prompt="  remove skills › " 2>/dev/null) || true
 
     SELECTED_SKILL_NAMES=()
     if [ -n "$fzf_output" ]; then
@@ -403,11 +392,9 @@ select_commands_to_remove() {
     local fzf_output
     fzf_output=$(printf '%s\n' "${AVAIL_NAMES[@]}" | \
       fzf --multi \
-          --header="Tab/Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
-          --bind="ctrl-a:select-all,ctrl-d:deselect-all" \
-          --height=60% \
-          --layout=reverse \
-          --prompt="Remove commands > " 2>/dev/null) || true
+          "${FZF_COMMON_ARGS[@]}" \
+          --header="Space=toggle  Ctrl-A=all  Ctrl-D=none  Enter=confirm" \
+          --prompt="  remove commands › " 2>/dev/null) || true
 
     SELECTED_COMMAND_NAMES=()
     if [ -n "$fzf_output" ]; then
@@ -451,36 +438,23 @@ print_plan() {
   local scope="$1"
   local cli_id target
 
-  echo ""
-  log_section "Uninstall Plan"
-  echo "  Scope:  $scope"
-  [ "$scope" = "project" ] && echo "  Project: $PROJECT_ROOT"
+  log_section "Plan"
+  printf "  ${GRAY}scope${NC}   %s\n" "$scope"
+  [ "$scope" = "project" ] && printf "  ${GRAY}project${NC} %s\n" "$PROJECT_ROOT"
   echo ""
 
   if [ "$UNINSTALL_SKILLS" -eq 1 ] && [ "${#SELECTED_SKILL_NAMES[@]}" -gt 0 ]; then
-    echo "  Skill targets:"
-    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-      target="$(cli_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
-      echo "  - $cli_id -> $target"
-    done
-    echo ""
-    echo "  Skills to remove:"
+    printf "  ${BOLD}skills${NC}  (${#SELECTED_SKILL_NAMES[@]})\n"
     for name in "${SELECTED_SKILL_NAMES[@]}"; do
-      echo "  - $name"
+      printf "  ${GRAY}·${NC}  %s\n" "$name"
     done
     echo ""
   fi
 
   if [ "$UNINSTALL_COMMANDS" -eq 1 ] && [ "${#SELECTED_COMMAND_NAMES[@]}" -gt 0 ]; then
-    echo "  Slash command targets:"
-    for cli_id in "${SELECTED_CLI_IDS[@]}"; do
-      target="$(command_target_dir "$cli_id" "$scope" "$PROJECT_ROOT")"
-      echo "  - $cli_id -> $target"
-    done
-    echo ""
-    echo "  Commands to remove:"
+    printf "  ${BOLD}commands${NC}  (${#SELECTED_COMMAND_NAMES[@]})\n"
     for name in "${SELECTED_COMMAND_NAMES[@]}"; do
-      echo "  - /$name"
+      printf "  ${GRAY}·${NC}  /%s\n" "$name"
     done
     echo ""
   fi
@@ -703,23 +677,20 @@ run_uninstall() {
 main() {
   local scope
 
-  echo ""
-  echo "╔══════════════════════════════════════╗"
-  echo "║      Agent Content Uninstaller       ║"
-  echo "╚══════════════════════════════════════╝"
-  echo ""
-  echo "  Repo:     $REPO_ROOT"
-  echo "  Skills:   $SKILLS_DIR"
-  echo "  Commands: $COMMANDS_DIR"
+  printf "\n${BOLD}${CYAN}  blvck-skills${NC}${GRAY}  ·  uninstall${NC}\n"
+  printf "  ${GRAY}%s${NC}\n\n" "$REPO_ROOT"
 
-  select_content
-  select_clis
+  # Default: all CLIs, both content types
+  SELECTED_CLI_IDS=("claude" "codex" "gemini")
+  UNINSTALL_SKILLS=1
+  UNINSTALL_COMMANDS=1
+
   select_scope
   scope="$SELECTED_SCOPE"
   [ "$scope" = "project" ] && select_project_root
 
-  [ "$UNINSTALL_SKILLS"   -eq 1 ] && select_skills_to_remove   "$scope" "${PROJECT_ROOT:-}"
-  [ "$UNINSTALL_COMMANDS" -eq 1 ] && select_commands_to_remove "$scope" "${PROJECT_ROOT:-}"
+  select_skills_to_remove   "$scope" "${PROJECT_ROOT:-}"
+  select_commands_to_remove "$scope" "${PROJECT_ROOT:-}"
 
   if [ "${#SELECTED_SKILL_NAMES[@]}" -eq 0 ] && [ "${#SELECTED_COMMAND_NAMES[@]}" -eq 0 ]; then
     log_warn "Nothing selected for removal."
@@ -728,8 +699,8 @@ main() {
 
   print_plan "$scope"
 
-  if ! confirm "Proceed with uninstall? [y/N]: "; then
-    log_warn "Uninstall cancelled."
+  if ! confirm "  Remove? [y/N]: "; then
+    log_warn "Cancelled."
     exit 0
   fi
 
@@ -737,8 +708,8 @@ main() {
   run_uninstall "$scope"
 
   echo ""
-  echo "────────────────────────────────────────"
-  log_info "Done — $removed removed, $skipped skipped, $not_found not found"
+  printf "  ${GRAY}────────────────────────────────────${NC}\n"
+  log_success "Done  $removed removed  $skipped skipped  $not_found not found"
   echo ""
 }
 

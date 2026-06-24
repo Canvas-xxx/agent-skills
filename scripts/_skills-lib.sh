@@ -28,13 +28,21 @@ SHIPPABLE_BUCKETS=(
   "misc"
 )
 
-# Skills too stack/domain-specific for a global install
-GLOBAL_EXCLUDE_SKILLS=(
-  "angular-engineer"
-  "strapi-engineer"
-  "python-engineer"
-  "ga4-measurement"
-  "technical-trading-strategy"
+# Curated minimal bundles — custom mode exposes all 25+ skills
+BUNDLE_GLOBAL_SKILLS=(
+  "grill-me" "write-a-prd" "write-a-story" "handoff"
+  "debug-mantra" "diagnose" "triage" "tdd" "scrutinize"
+)
+
+BUNDLE_PROJECT_PM_SKILLS=(
+  "grill-me" "write-a-prd" "write-a-story"
+  "stakeholder-update" "management-talk" "handoff" "caveman"
+)
+
+BUNDLE_PROJECT_DEV_SKILLS=(
+  "grill-me" "write-a-story" "handoff"
+  "triage" "tdd" "debug-mantra" "diagnose"
+  "domain-modeling" "scrutinize" "security-audit" "git-guardrails-claude-code"
 )
 
 DIRECT_INSTALL_TARGETS=(
@@ -50,20 +58,32 @@ GEMINI_EXTENSION_SKILLS_DIR="$GEMINI_EXTENSION_DIR/skills"
 FZF_AVAILABLE=0
 command -v fzf >/dev/null 2>&1 && FZF_AVAILABLE=1
 
+# Shared fzf flags used by every picker
+FZF_COMMON_ARGS=(
+  --height=50%
+  --layout=reverse
+  --border=rounded
+  --info=inline
+  --bind='space:toggle,tab:toggle+down,ctrl-a:select-all,ctrl-d:deselect-all'
+  --color='dark,bg:#0f0f0f,bg+:#1a1a1a,fg:#c8c8c8,fg+:#ffffff,hl:#00e676,hl+:#00e676,info:#555555,prompt:#00e676,pointer:#00e676,marker:#00e676,header:#666666,border:#2d2d2d'
+)
+
 # ── Logging ───────────────────────────────────────────────────────────────────
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
+GREEN='\033[38;5;82m'
+YELLOW='\033[38;5;214m'
+RED='\033[38;5;196m'
+CYAN='\033[38;5;51m'
+GRAY='\033[38;5;240m'
+BOLD='\033[1m'
+DIM='\033[2m'
 NC='\033[0m'
 
-log_info()    { echo -e "  ${BLUE}→${NC}  $1"; }
-log_success() { echo -e "  ${GREEN}✓${NC}  $1"; }
-log_warn()    { echo -e "  ${YELLOW}⚠${NC}  $1"; }
-log_error()   { echo -e "  ${RED}✗${NC}  $1"; }
-log_section() { echo -e "\n${CYAN}▸ $1${NC}"; }
+log_info()    { printf "  ${GRAY}·${NC}  %s\n" "$1"; }
+log_success() { printf "  ${GREEN}✓${NC}  %s\n" "$1"; }
+log_warn()    { printf "  ${YELLOW}⚠${NC}  %s\n" "$1"; }
+log_error()   { printf "  ${RED}✗${NC}  %s\n" "$1"; }
+log_section() { printf "\n  ${BOLD}${CYAN}%s${NC}\n\n" "$1"; }
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -140,23 +160,19 @@ _is_in_list() {
 
 # list_skills_for_preset <preset>
 #   preset: global | project-pm | project-dev
-# Prints skill dirs belonging to the named preset.
+# Prints skill dirs that belong to the curated bundle for that preset.
 list_skills_for_preset() {
-  local preset="$1" skill_dir skill_name
+  local preset="$1" skill_dir skill_name bundle=()
+
+  case "$preset" in
+    global)      bundle=("${BUNDLE_GLOBAL_SKILLS[@]}") ;;
+    project-pm)  bundle=("${BUNDLE_PROJECT_PM_SKILLS[@]}") ;;
+    project-dev) bundle=("${BUNDLE_PROJECT_DEV_SKILLS[@]}") ;;
+    *) return 1 ;;
+  esac
 
   while IFS= read -r skill_dir; do
     skill_name="$(skill_name_from_dir "$skill_dir")"
-    case "$preset" in
-      global)
-        _is_in_list "$skill_name" "${GLOBAL_EXCLUDE_SKILLS[@]}" && continue
-        printf '%s\n' "$skill_dir"
-        ;;
-      project-pm)
-        [[ "$skill_dir" == */productivity/* ]] && printf '%s\n' "$skill_dir"
-        ;;
-      project-dev)
-        printf '%s\n' "$skill_dir"
-        ;;
-    esac
+    _is_in_list "$skill_name" "${bundle[@]}" && printf '%s\n' "$skill_dir"
   done < <(list_shippable_skill_dirs)
 }
