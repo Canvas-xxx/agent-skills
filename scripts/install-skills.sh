@@ -252,17 +252,15 @@ select_clis() {
   local answer index
   echo ""
   log_section "Choose CLIs"
-  index=1
-  while [ "$index" -le "${#CLI_NAMES[@]}" ]; do
-    printf '  %s) %s\n' "$index" "${CLI_NAMES[$((index - 1))]}"
-    index=$((index + 1))
-  done
-  echo "  all) Claude, Codex, and Gemini"
+  printf "  ${BOLD}1)${NC}  Claude\n"
+  printf "  ${BOLD}2)${NC}  Codex\n"
+  printf "  ${BOLD}3)${NC}  Gemini\n"
+  printf "  ${BOLD}all)${NC} Claude, Codex, and Gemini\n"
   echo ""
 
   while true; do
-    read_prompt answer "Install for which CLIs? [all]: "
-    [ -n "$answer" ] || answer="all"
+    read_prompt answer "  CLIs [1]: "
+    [ -n "$answer" ] || answer="1"
 
     SELECTED_CLI_IDS=()
     if indexes="$(expand_selection_tokens "$answer" "${#CLI_NAMES[@]}")"; then
@@ -975,10 +973,10 @@ run_install() {
 select_scenario() {
   local answer
   log_section "Choose Scenario"
-  printf "  ${BOLD}1)${NC}  Global          — 9 core skills, symlinked system-wide\n"
-  printf "  ${BOLD}2)${NC}  Project – PM    — 7 productivity skills (PM / non-coder)\n"
-  printf "  ${BOLD}3)${NC}  Project – Dev   — 11 engineering essentials\n"
-  printf "  ${BOLD}4)${NC}  Custom          — pick from all available skills\n"
+  printf "  ${BOLD}1)${NC}  Global      — 9 core skills, symlinked system-wide\n"
+  printf "  ${BOLD}2)${NC}  Project PM  — 7 productivity skills (PM / non-coder)\n"
+  printf "  ${BOLD}3)${NC}  Project Dev — 11 engineering essentials\n"
+  printf "  ${BOLD}4)${NC}  Custom      — pick from all available skills\n"
   echo ""
 
   while true; do
@@ -1111,12 +1109,11 @@ main() {
   printf "\n${BOLD}${CYAN}  blvck-skills${NC}${GRAY}  ·  install${NC}\n"
   printf "  ${GRAY}%s${NC}\n\n" "$REPO_ROOT"
 
-  # Preset installs go to Claude only; custom lets you choose scope + any CLI
-  SELECTED_CLI_IDS=("claude")
   INSTALL_SKILLS=1
   INSTALL_COMMANDS=1
 
   select_scenario
+  select_clis
 
   if [ "$SELECTED_SCENARIO" = "custom" ]; then
     select_scope
