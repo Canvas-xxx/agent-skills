@@ -16,7 +16,7 @@ skill-name/
     `-- template.ext
 ```
 
-Keep the folder name stable, lowercase, and easy to type. Prefer hyphenated names such as `write-a-skill`.
+Keep the folder name stable, lowercase, and easy to type. Prefer hyphenated names such as `skill-smith`.
 
 ## SKILL.md Template
 
@@ -34,6 +34,11 @@ One short paragraph describing the reusable capability.
 ## When to Use
 
 Describe activation boundaries, common user phrases, related contexts, and exclusions.
+
+## Invocation Design
+
+Decide: model-invoked (keep description) or user-invoked (disable-model-invocation: true)?
+State the reason — context load vs. cognitive load tradeoff.
 
 ## Core Rule
 
@@ -79,7 +84,7 @@ Use a concise two-sentence pattern when possible. Target 150-300 characters, sta
 Default description style:
 
 ```text
-Create, write, review, and improve reusable agent skills with proper structure, progressive disclosure, and bundled resources. Use when the user asks to create a skill, write a skill, build an agent skill, improve a SKILL.md, or package skill references, scripts, assets, or examples.
+Craft reusable agent skills with invocation design, progressive disclosure, leading words, and bundled resources. Use when the user asks to create a skill, write a skill, build an agent skill, review a SKILL.md, or package skill references, scripts, or examples.
 ```
 
 If a repository bans activation phrasing in public descriptions, rewrite the second sentence as neutral scope text with the same keywords. Keep descriptions under the platform limit.
@@ -113,6 +118,7 @@ Add `assets/` files when the skill needs static templates, fixtures, visual refe
 ## Review Checklist
 
 - Folder name and YAML `name` match.
+- Invocation type decided — model-invoked (keep `description`) or user-invoked (`disable-model-invocation: true`).
 - Public description follows local conventions and gives enough trigger context for skill selection.
 - Activation guidance has clear inclusions and exclusions.
 - `SKILL.md` covers the common path without excessive detail.
@@ -122,3 +128,4 @@ Add `assets/` files when the skill needs static templates, fixtures, visual refe
 - Required README, manifest, or install metadata entries are updated.
 - Required validation commands pass.
 - Main `SKILL.md` is under 80 lines when practical and under 100 lines by default.
+- Failure modes checked: sediment, sprawl, duplication, no-ops, premature completion risk.
