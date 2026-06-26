@@ -30,17 +30,17 @@ SHIPPABLE_BUCKETS=(
 
 # Curated minimal bundles — custom mode exposes all 25+ skills
 BUNDLE_GLOBAL_SKILLS=(
-  "grill-me" "write-a-prd" "write-a-story" "handoff"
+  "grill-me" "grilling" "write-a-prd" "write-a-story" "handoff"
   "debug-mantra" "diagnose" "triage" "tdd" "scrutinize"
 )
 
 BUNDLE_PROJECT_PM_SKILLS=(
-  "grill-me" "write-a-prd" "write-a-story"
+  "grill-me" "grilling" "write-a-prd" "write-a-story"
   "stakeholder-update" "management-talk" "handoff" "caveman"
 )
 
 BUNDLE_PROJECT_DEV_SKILLS=(
-  "grill-me" "write-a-story" "handoff"
+  "grill-me" "grilling" "write-a-story" "handoff"
   "triage" "tdd" "debug-mantra" "diagnose"
   "domain-modeling" "scrutinize" "security-audit" "git-guardrails-claude-code"
 )

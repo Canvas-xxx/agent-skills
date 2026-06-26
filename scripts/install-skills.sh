@@ -973,9 +973,9 @@ run_install() {
 select_scenario() {
   local answer
   log_section "Choose Scenario"
-  printf "  ${BOLD}1)${NC}  Global      — 9 core skills, symlinked system-wide\n"
-  printf "  ${BOLD}2)${NC}  Project PM  — 7 productivity skills (PM / non-coder)\n"
-  printf "  ${BOLD}3)${NC}  Project Dev — 11 engineering essentials\n"
+  printf "  ${BOLD}1)${NC}  Global      — 10 core skills, symlinked system-wide\n"
+  printf "  ${BOLD}2)${NC}  Project PM  — 8 productivity skills (PM / non-coder)\n"
+  printf "  ${BOLD}3)${NC}  Project Dev — 12 engineering essentials\n"
   printf "  ${BOLD}4)${NC}  Custom      — pick from all available skills\n"
   echo ""
 
