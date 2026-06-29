@@ -40,7 +40,7 @@ BUNDLE_PROJECT_PM_SKILLS=(
 )
 
 BUNDLE_PROJECT_DEV_SKILLS=(
-  "grill-me" "grilling" "write-a-story" "handoff"
+  "grill-with-docs" "grilling" "write-a-story" "handoff"
   "triage" "tdd" "debug-mantra" "diagnose"
   "domain-modeling" "scrutinize" "security-audit" "git-guardrails-claude-code"
 )
