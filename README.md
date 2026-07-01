@@ -88,9 +88,21 @@ It also includes a Claude Code plugin manifest for loading the same shippable sk
 - A supported AI assistant (Gemini CLI or Claude).
 - A Unix-like environment (macOS or Linux).
 
+### Quick Install (skills only)
+
+For a single skill or a fast, no-clone setup, use the community [`skills`](https://github.com/vercel-labs/skills) CLI via `npx`. It reads this repo's `.claude-plugin/plugin.json` directly, so no setup is required on this end:
+
+```bash
+npx skills add github:Canvas-xxx/agent-skills
+```
+
+Add `-g` for a global (user-level) install, `--agent <agents>` to target specific CLIs (e.g. `claude-code`, `codex`, `gemini-cli`), or `--skill <names>` to install specific skills instead of choosing interactively.
+
+This path only installs skills — it does not install this repo's `commands/` slash commands, and it doesn't support the bucket-level ("all of engineering/") selection the installer below does. For those, use the full installer.
+
 ### Installation
 
-For a new computer, clone this repository and run the interactive installer:
+For the full installer — skills, slash commands, and bucket-level selection — clone this repository and run the interactive installer:
 
 ```bash
 git clone <repo-url>
